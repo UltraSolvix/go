@@ -521,6 +521,7 @@
         answers: answers,
         lastAnsweredIndex: lastAnsweredIndex
       };
+      console.log('Saving progress:', progress);
       localStorage.setItem('hydration_progress', JSON.stringify(progress));
     }
 
@@ -528,10 +529,30 @@
     function loadProgress() {
       const data = localStorage.getItem('hydration_progress');
       if (data) {
-        const progress = JSON.parse(data);
-        answers = progress.answers || [];
-        lastAnsweredIndex = progress.lastAnsweredIndex || -1;
+        try {
+          const progress = JSON.parse(data);
+          console.log('Loaded progress:', progress);
+          answers = Array.isArray(progress.answers) ? progress.answers : [];
+          lastAnsweredIndex = Number.isInteger(progress.lastAnsweredIndex) ? progress.lastAnsweredIndex : -1;
+          // Validate loaded answers
+          for (let i = 0; i < answers.length; i++) {
+            if (answers[i] && !validateInput(answers[i], questions[i])) {
+              answers[i] = undefined; // Clear invalid answers
+            }
+          }
+        } catch (err) {
+          console.error('Error loading progress:', err);
+          answers = [];
+          lastAnsweredIndex = -1;
+        }
+      } else {
+        console.log('No progress found in localStorage');
       }
+    }
+
+    // Function to validate that all questions are answered
+    function isQuestionnaireComplete() {
+      return answers.length >= questions.length && answers.every((answer, index) => answer && validateInput(answer, questions[index]));
     }
 
     window.addEventListener('load', () => {
@@ -542,6 +563,7 @@
 
       // Load saved progress
       loadProgress();
+      console.log('Initial state - answers:', answers, 'lastAnsweredIndex:', lastAnsweredIndex);
 
       setTimeout(() => {
         splashCard.classList.add('show');
@@ -554,17 +576,19 @@
           splash.addEventListener('transitionend', () => {
             splash.remove();
             mainContainer.classList.add('show');
-            
-            // If user has completed all questions, show results directly
-            if (lastAnsweredIndex >= questions.length - 1 && answers.length >= questions.length) {
+
+            if (isQuestionnaireComplete()) {
+              console.log('Questionnaire complete, showing results');
               showResult();
             } else {
-              // Show all answered questions and the next unanswered one
+              console.log('Resuming questionnaire at index:', lastAnsweredIndex + 1);
+              // Show all answered questions
               for (let i = 0; i <= lastAnsweredIndex; i++) {
                 if (answers[i]) {
                   const q = createQuestionElement(questions[i], i);
-                  q.querySelector('input,select').value = answers[i];
-                  q.querySelector('input,select').disabled = true; // Disable answered questions
+                  const input = q.querySelector('input,select');
+                  input.value = answers[i];
+                  input.disabled = true; // Disable answered questions
                   container.appendChild(q);
                   setTimeout(() => q.classList.add('show'), 50 * (i + 1));
                 }
@@ -576,6 +600,9 @@
                 container.appendChild(nextQ);
                 setTimeout(() => nextQ.classList.add('show'), 50 * (lastAnsweredIndex + 2));
                 nextQ.querySelector('input,select').focus();
+              } else if (lastAnsweredIndex === questions.length - 1) {
+                // If all questions are answered but not validated as complete, go to results
+                showResult();
               }
               updateProgressBar();
               setTimeout(() => playAudio(audioFiles.welcome), 1000);
@@ -682,7 +709,7 @@
         if (idx >= lastAnsweredIndex) {
           lastAnsweredIndex = idx;
           updateProgressBar();
-          saveProgress(); // Save progress after each answer
+          saveProgress();
           nextQuestion(idx);
         }
       }
@@ -700,7 +727,7 @@
       if (idx >= lastAnsweredIndex) {
         lastAnsweredIndex = idx;
         updateProgressBar();
-        saveProgress(); // Save progress after each answer
+        saveProgress();
         nextQuestion(idx);
       }
     }
@@ -717,7 +744,7 @@
       if (idx >= lastAnsweredIndex) {
         lastAnsweredIndex = idx;
         updateProgressBar();
-        saveProgress(); // Save progress after each answer
+        saveProgress();
         nextQuestion(idx);
       }
     }
@@ -735,7 +762,7 @@
         if (idx >= lastAnsweredIndex) {
           lastAnsweredIndex = idx;
           updateProgressBar();
-          saveProgress(); // Save progress after each answer
+          saveProgress();
           nextQuestion(idx);
         }
       }
@@ -924,7 +951,6 @@
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.setAttribute('data-key', `checkbox_${index}`);
-        // Set checkbox state based on localStorage
         checkbox.checked = !!checkboxStates[`checkbox_${index}`];
         checkbox.addEventListener('change', () => {
           const updatedStates = loadCheckboxStates();
