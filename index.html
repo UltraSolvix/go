@@ -1,822 +1,1050 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>Hydration Pro Clinical — Smart Web</title>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Almarai:wght@700;900&display=swap');
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Hydration Pro Clinical — Smart Web</title>
+  <!-- إضافة مكتبة Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Almarai:wght@700;900&display=swap');
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(to top left, purple 0%, blue 100%);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  color: #0ff;
-  overflow: auto;
-}
+    body {
+      font-family: 'Almarai', "Noto Naskh Arabic", Arial, sans-serif;
+      background: linear-gradient(to top left, purple 0%, blue 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      color: #0ff;
+      overflow: auto;
+    }
 
-.container {
-  background: rgba(0, 0, 0, 0.25);
-  backdrop-filter: blur(15px);
-  border-radius: 30px;
-  border: 3px solid #00ffff;
-  box-shadow: 0 10px 30px rgba(0, 255, 255, 0.6), 0 0 50px rgba(0, 255, 255, 0.4);
-  width: 100%;
-  max-width: 720px;
-  min-height: 80vh;
-  display: flex;
-  flex-direction: column;
-  padding: 25px;
-  transform: translateY(-10px);
-  transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.5s ease;
-  opacity: 0;
-  pointer-events: none;
-  overflow: visible;
-}
+    .container {
+      background: rgba(0, 0, 0, 0.25);
+      backdrop-filter: blur(15px);
+      border-radius: 30px;
+      border: 3px solid #00ffff;
+      box-shadow: 0 10px 30px rgba(0, 255, 255, 0.6), 0 0 50px rgba(0, 255, 255, 0.4);
+      width: 100%;
+      max-width: 720px;
+      min-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      padding: 25px;
+      transform: translateY(-10px);
+      transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.5s ease;
+      opacity: 0;
+      pointer-events: none;
+      overflow: visible;
+    }
 
-.container.show {
-  opacity: 1;
-  pointer-events: auto;
-}
+    .container.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
 
-.container:hover {
-  transform: translateY(-15px);
-  box-shadow: 0 12px 40px rgba(0, 255, 255, 0.7), 0 0 60px rgba(0, 255, 255, 0.5);
-}
+    .container:hover {
+      transform: translateY(-15px);
+      box-shadow: 0 12px 40px rgba(0, 255, 255, 0.7), 0 0 60px rgba(0, 255, 255, 0.5);
+    }
 
-#splash {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(circle at center, #00ffff 0%, #0500aa 60%, #000000 100%);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-  opacity: 1;
-  transition: opacity 0.7s ease;
-}
+    #splash {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at center, #00ffff 0%, #0500aa 60%, #000000 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      opacity: 1;
+      transition: opacity 0.7s ease;
+    }
 
-#splash.hide {
-  opacity: 0;
-  pointer-events: none;
-}
+    #splash.hide {
+      opacity: 0;
+      pointer-events: none;
+    }
 
-#splashCard {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 550px;
-  height: 550px;
-  border-radius: 50%;
-  background: rgba(128, 0, 128, 0.3);
-  box-shadow: 
-    0 0 90px 25px rgba(128, 0, 128, 0.6),
-    0 0 140px 50px rgba(128, 0, 128, 0.35);
-  overflow: hidden;
-  transform: scale(0.7);
-  opacity: 0;
-  transition: all 1s ease;
-}
+    #splashCard {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 550px;
+      height: 550px;
+      border-radius: 50%;
+      background: rgba(128, 0, 128, 0.3);
+      box-shadow: 
+        0 0 90px 25px rgba(128, 0, 128, 0.6),
+        0 0 140px 50px rgba(128, 0, 128, 0.35);
+      overflow: hidden;
+      transform: scale(0.7);
+      opacity: 0;
+      transition: all 1s ease;
+    }
 
-#splashCard.show {
-  opacity: 1;
-  transform: scale(1);
-}
+    #splashCard.show {
+      opacity: 1;
+      transform: scale(1);
+    }
 
-#splashCard img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  border-radius: 50%;
-  border: 3px solid #00ffff;
-  box-shadow: 0 0 20px rgba(128, 0, 128, 0.8);
-}
+    #splashCard img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      border-radius: 50%;
+      border: 3px solid #00ffff;
+      box-shadow: 0 0 20px rgba(128, 0, 128, 0.8);
+    }
 
-#startButton {
-  position: absolute;
-  bottom: 10%;
-  background: linear-gradient(135deg, #00ccff, #9d4edd);
-  border: none;
-  border-radius: 25px;
-  padding: 15px 30px;
-  font-size: 1.2rem;
-  font-weight: 900;
-  font-family: 'Almarai', "Noto Naskh Arabic", Arial, sans-serif;
-  color: #fff;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 6px 15px rgba(0, 255, 255, 0.5);
-}
+    #startButton {
+      position: absolute;
+      bottom: 10%;
+      background: linear-gradient(135deg, #00ccff, #9d4edd);
+      border: none;
+      border-radius: 25px;
+      padding: 15px 30px;
+      font-size: 1.2rem;
+      font-weight: 900;
+      font-family: 'Almarai', "Noto Naskh Arabic", Arial, sans-serif;
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 15px rgba(0, 255, 255, 0.5);
+    }
 
-#startButton:hover {
-  background: linear-gradient(135deg, #00ffcc, #d946ef);
-  transform: translateY(-5px) scale(1.05);
-  box-shadow: 0 8px 20px rgba(0, 255, 255, 0.7);
-}
+    #startButton:hover {
+      background: linear-gradient(135deg, #00ffcc, #d946ef);
+      transform: translateY(-5px) scale(1.05);
+      box-shadow: 0 8px 20px rgba(0, 255, 255, 0.7);
+    }
 
-.inner-container {
-  padding: 15px;
-  overflow-y: visible;
-  min-height: 100%;
-  scrollbar-width: none;
-}
-.inner-container::-webkit-scrollbar { width: 0; }
-.question, .result-card, .schedule-card {
-  margin-bottom: 20px;
-  font-size: 1.1rem;
-  display: flex;
-  flex-direction: column;
-  transform: translateY(25px);
-  opacity: 0;
-  transition: all 0.5s ease;
-}
-.question.show, .result-card.show, .schedule-card.show {
-  transform: translateY(0);
-  opacity: 1;
-}
-.input-container {
-  position: relative;
-  width: 100%;
-}
-.input-container input,
-.input-container select {
-  padding: 14px 12px;
-  width: 100%;
-  border-radius: 40px;
-  border: 2px solid #00ffff;
-  background: rgba(0, 0, 0, 0.15);
-  color: #00ffff;
-  font-size: 1.05rem;
-  font-weight: 700;
-  outline: none;
-  transition: border-color 0.3s, box-shadow 0.3s, transform 0.2s;
-  box-shadow: 0 0 8px rgba(0, 255, 255, 0.3);
-}
-.input-container input:focus,
-.input-container select:focus {
-  box-shadow: 0 0 15px rgba(0, 255, 255, 0.7);
-  transform: scale(1.02);
-}
-.input-container input::placeholder {
-  color: rgba(0, 255, 255, 0.65);
-  font-size: 0.95rem;
-}
-.input-container select option {
-  background: #000;
-  color: #00ffff;
-}
-.result-card, .schedule-card {
-  background: rgba(0, 0, 0, 0.35);
-  border-radius: 40px;
-  border: 2px solid #00ffff;
-  padding: 20px;
-  font-size: 1.1rem;
-  line-height: 1.6;
-  position: relative;
-  box-shadow: 0 6px 20px rgba(0, 255, 255, 0.5);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-.result-card:hover, .schedule-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(0, 255, 255, 0.6);
-}
-#scheduleCard {
-  padding: 20px;
-  border-radius: 20px;
-  background: rgba(0, 0, 0, 0.3);
-  border: 3px solid #00ffff;
-  box-shadow: 0 10px 30px rgba(0, 255, 255, 0.6), inset 0 0 25px rgba(0, 255, 255, 0.25);
-  color: #00ffff;
-  font-family: 'Almarai', "Noto Naskh Arabic", Arial, sans-serif;
-  font-weight: 900;
-  min-width: 280px;
-  width: 90%;
-  max-width: 620px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-  font-kerning: normal;
-}
-#scheduleCard span {
-  color: #00ffff;
-}
-#scheduleCard .schedule-line {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  max-width: 420px;
-  margin: 8px 0;
-  padding: 10px 14px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, rgba(0, 255, 255, 0.25), rgba(106, 17, 203, 0.25));
-  box-shadow: 0 2px 10px rgba(0, 255, 255, 0.3);
-  transition: transform 0.2s ease;
-}
-#scheduleCard .schedule-line:hover {
-  transform: scale(1.03);
-}
-#scheduleCard .schedule-line span {
-  width: 50%;
-  text-align: center;
-  font-size: 1.05rem;
-  font-weight: 900;
-  opacity: 0.95;
-  white-space: nowrap;
-}
-.download-btn {
-  margin-top: 15px;
-  align-self: center;
-  background: linear-gradient(135deg, #00ccff, #9d4edd);
-  border: none;
-  border-radius: 50%;
-  width: 60px;
-  height: 60px;
-  font-size: 24px;
-  color: #fff;
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transition: all 0.3s ease;
-  box-shadow: 0 6px 15px rgba(0, 255, 255, 0.5);
-}
-.download-btn:hover {
-  background: linear-gradient(135deg, #00ffcc, #d946ef);
-  transform: translateY(-5px) scale(1.05);
-  box-shadow: 0 8px 20px rgba(0, 255, 255, 0.7);
-}
-.download-btn.busy {
-  opacity: 0.7;
-  transform: scale(0.98);
-  pointer-events: none;
-}
-.question-label {
-  text-align: right;
-  margin-bottom: 8px;
-  font-weight: 900;
-  font-size: 1.15rem;
-  color: #00ffff;
-  opacity: 0.95;
-  text-shadow: 0 0 5px rgba(0, 255, 255, 0.4);
-}
-@media (max-width: 480px) {
-  body {
-    align-items: center;
-    overflow-y: auto;
-    touch-action: pan-y;
-  }
-  .container { 
-    height: auto; 
-    min-height: auto; 
-    padding: 15px; 
-    transform: translateY(0); 
-    margin-bottom: 200px;
-  }
-  .container:hover { transform: translateY(-5px); }
-  .inner-container {
-    padding: 15px 0;
-    overflow-y: visible;
-    height: auto;
-  }
-  .question, .result-card, .schedule-card { font-size: 0.95rem; }
-  .input-container input, .input-container select { 
-    font-size: 0.95rem; 
-    padding: 10px 8px; 
-  }
-  .download-btn { width: 50px; height: 50px; font-size: 20px; }
-  .question-label { font-size: 1.05rem; }
-  #scheduleCard { font-size: 0.9rem; min-width: 220px; width: 95%; }
-  #scheduleCard .schedule-line span { font-size: 0.95rem; }
-  #splashCard { width: 80vw; height: 80vw; max-width: 300px; max-height: 300px; }
-  #startButton { padding: 10px 20px; font-size: 1rem; }
-}
-</style>
+    .inner-container {
+      padding: 15px;
+      overflow-y: visible;
+      min-height: 100%;
+      scrollbar-width: none;
+      position: relative;
+    }
+    .inner-container::-webkit-scrollbar { width: 0; }
+
+    .progress-bar-container {
+      position: sticky;
+      top: 10px;
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto 20px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0, 255, 255, 0.4);
+      z-index: 100;
+      transition: opacity 0.5s ease;
+    }
+
+    .progress-bar {
+      height: 10px;
+      background: #00ffff;
+      width: 0%;
+      transition: width 0.3s ease;
+      box-shadow: 0 0 10px rgba(0, 255, 255, 0.7);
+    }
+
+    .progress-bar-container.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .question, .result-card, .schedule-card {
+      margin-bottom: 20px;
+      font-size: 1.1rem;
+      display: flex;
+      flex-direction: column;
+      transform: translateY(25px);
+      opacity: 0;
+      transition: all 0.5s ease;
+    }
+
+    .question.show, .result-card.show, .schedule-card.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .input-container {
+      position: relative;
+      width: 100%;
+    }
+
+    .input-container input,
+    .input-container select {
+      padding: 14px 12px;
+      width: 100%;
+      border-radius: 30px;
+      border: 2px solid #00ffff;
+      background: rgba(0, 0, 0, 0.15);
+      color: #00ffff;
+      font-size: 1.05rem;
+      font-weight: 700;
+      outline: none;
+      transition: border-color 0.3s, box-shadow 0.3s, transform 0.2s;
+      box-shadow: 0 0 8px rgba(0, 255, 255, 0.3);
+    }
+
+    .input-container input:focus,
+    .input-container select:focus {
+      box-shadow: 0 0 15px rgba(0, 255, 255, 0.7);
+      transform: scale(1.02);
+    }
+
+    .input-container input::placeholder {
+      color: rgba(0, 255, 255, 0.65);
+      font-size: 0.95rem;
+    }
+
+    .input-container select {
+      appearance: none;
+      background-image: url('data:image/svg+xml;utf8,<svg fill="%2300ffff" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>');
+      background-repeat: no-repeat;
+      background-position: left 10px center;
+      background-size: 20px;
+      padding-left: 35px;
+    }
+
+    .input-container select option {
+      background: #000;
+      color: #00ffff;
+      font-family: 'Almarai', sans-serif;
+      font-weight: 700;
+    }
+
+    .result-card, .schedule-card {
+      background: rgba(0, 0, 0, 0.35);
+      border-radius: 18px;
+      border: 2px solid #00ffff;
+      padding: 20px;
+      font-size: 1.1rem;
+      line-height: 1.6;
+      position: relative;
+      box-shadow: 0 6px 20px rgba(0, 255, 255, 0.5);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .result-card:hover, .schedule-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0, 255, 255, 0.6);
+    }
+
+    #scheduleCard {
+      padding: 20px;
+      border-radius: 16px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 3px solid #00ffff;
+      box-shadow: 0 10px 30px rgba(0, 255, 255, 0.6), inset 0 0 25px rgba(0, 255, 255, 0.25);
+      color: #00ffff;
+      font-family: 'Almarai', "Noto Naskh Arabic", Arial, sans-serif;
+      font-weight: 900;
+      min-width: 280px;
+      width: 90%;
+      max-width: 620px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+
+    #scheduleCard span {
+      color: #00ffff;
+    }
+
+    #scheduleCard .schedule-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      max-width: 420px;
+      margin: 8px 0;
+      padding: 10px 14px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(0, 255, 255, 0.25), rgba(106, 17, 203, 0.25));
+      box-shadow: 0 2px 10px rgba(0, 255, 255, 0.3);
+      transition: transform 0.2s ease;
+    }
+
+    #scheduleCard .schedule-line:hover {
+      transform: scale(1.03);
+    }
+
+    #scheduleCard .schedule-line span {
+      width: 33.33%;
+      text-align: center;
+      font-size: 1.05rem;
+      font-weight: 900;
+      opacity: 0.95;
+      white-space: nowrap;
+    }
+
+    .schedule-line input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      accent-color: #00ffff;
+      cursor: pointer;
+      outline: none;
+      vertical-align: middle;
+      margin: 0 auto;
+      background: rgba(0, 0, 0, 0.3);
+      border: 2px solid #00ffff;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+    }
+
+    .schedule-line input[type="checkbox"]:checked {
+      background: #00ffff;
+      border-color: #00ccff;
+    }
+
+    .schedule-line input[type="checkbox"]:hover {
+      box-shadow: 0 0 8px rgba(0, 255, 255, 0.7);
+    }
+
+    .download-btn {
+      margin-top: 20px;
+      align-self: center;
+      background: linear-gradient(135deg, #00ccff, #9d4edd);
+      border: none;
+      border-radius: 50%;
+      width: 56px;
+      height: 56px;
+      font-size: 24px;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 15px rgba(0, 255, 255, 0.5);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .download-btn:hover {
+      background: linear-gradient(135deg, #00ffcc, #d946ef);
+      transform: translateY(-5px) scale(1.08);
+      box-shadow: 0 8px 20px rgba(0, 255, 255, 0.7);
+    }
+
+    .download-btn.busy {
+      opacity: 0.7;
+      transform: scale(0.95);
+      pointer-events: none;
+    }
+
+    .download-btn::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 10%, transparent 10.01%);
+      transform: translate(-50%, -50%) scale(0);
+      transition: transform 0.4s ease;
+      border-radius: 50%;
+    }
+
+    .download-btn:hover::before {
+      transform: translate(-50%, -50%) scale(2.5);
+    }
+
+    .download-btn i {
+      font-size: 1.5rem;
+      transform: translateY(1px);
+    }
+
+    .question-label {
+      text-align: right;
+      margin-bottom: 8px;
+      font-weight: 900;
+      font-size: 1.15rem;
+      color: #00ffff;
+      opacity: 0.95;
+      text-shadow: 0 0 5px rgba(0, 255, 255, 0.4);
+    }
+
+    @media (max-width: 480px) {
+      body {
+        align-items: center;
+        overflow-y: auto;
+        touch-action: pan-y;
+      }
+      .container { 
+        height: auto; 
+        min-height: auto; 
+        padding: 15px; 
+        transform: translateY(0); 
+        margin-bottom: 200px;
+      }
+      .container:hover { transform: translateY(-5px); }
+      .inner-container {
+        padding: 15px 0;
+        overflow-y: visible;
+        height: auto;
+      }
+      .progress-bar-container {
+        max-width: 90%;
+      }
+      .question, .result-card, .schedule-card { font-size: 0.95rem; }
+      .input-container input, .input-container select { 
+        font-size: 0.95rem; 
+        padding: 10px 8px; 
+      }
+      .download-btn { 
+        width: 48px;
+        height: 48px; 
+        font-size: 20px; 
+      }
+      .download-btn i {
+        font-size: 1.2rem;
+      }
+      .question-label { font-size: 1.05rem; }
+      #scheduleCard { font-size: 0.9rem; min-width: 220px; width: 95%; }
+      #scheduleCard .schedule-line span { font-size: 0.95rem; width: 33.33%; }
+      #scheduleCard .schedule-line input[type="checkbox"] { width: 18px; height: 18px; }
+      #splashCard { width: 80vw; height: 80vw; max-width: 300px; max-height: 300px; }
+      #startButton { padding: 10px 20px; font-size: 1rem; }
+    }
+  </style>
 </head>
 <body>
-<div id="splash">
-  <div id="splashCard">
-    <img src="A_hyperrealistic_image_of_a_stunning_space_galaxy_background_with_integrated_black_and_vibrant_purpl (2).png" alt="Hydration Pro Logo">
+  <div id="splash">
+    <div id="splashCard">
+      <img src="A_hyperrealistic_image_of_a_stunning_space_galaxy_background_with_integrated_black_and_vibrant_purpl (2).png" alt="Hydration Pro Logo">
+    </div>
+    <button id="startButton">ابدأ</button>
   </div>
-  <button id="startButton">ابدأ</button>
-</div>
 
-<div class="container">
-  <div class="inner-container" id="questionContainer"></div>
-</div>
+  <div class="container">
+    <div class="inner-container" id="questionContainer">
+      <div class="progress-bar-container" id="progressBarContainer">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+    </div>
+  </div>
 
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js" crossorigin="anonymous"></script>
-<script>
-const questions = [
-  {text: "العمر (سنوات)", type: "number", min: 1, max: 120, required: true},
-  {text: "الجنس", type: "select", options: ["ذكر", "انثى"], required: true},
-  {text: "الوزن (كجم)", type: "number", min: 10, max: 300, required: true},
-  {text: "الطول (سم)", type: "number", min: 50, max: 250, required: true},
-  {text: "نسبة الدهون في الجسم (%)", type: "number", min: 0, max: 70, default: 0, required: true},
-  {text: "نوع الرياضة", type: "select", options: ["جري", "كارديو", "قوة", "hiit", "سباحة", "مختلط", "آخرى"], default: "مختلط", required: true},
-  {text: "عدد أيام التدريب أسبوعيًا", type: "number", min: 0, max: 14, default: 3, required: true},
-  {text: "متوسط مدة التمرين (دقيقة)", type: "number", min: 0, max: 300, default: 45, required: true},
-  {text: "شدة التمرين (RPE 1-10)", type: "number", min: 1, max: 10, default: 6, required: true},
-  {text: "هل تستطيع قياس التعرق؟", type: "select", options: ["نعم", "لا"], default: "لا", required: true},
-  {text: "الوزن قبل التمرين (كجم)", type: "number", min: 10, max: 300, condition: (a) => a[9] === "نعم", required: true},
-  {text: "الوزن بعد التمرين (كجم)", type: "number", min: 10, max: 300, condition: (a) => a[9] === "نعم", required: true},
-  {text: "مدة التمرين عند القياس (دقيقة)", type: "number", min: 1, max: 300, condition: (a) => a[9] === "نعم", required: true},
-  {text: "كم لتر شربت أثناء التمرين؟", type: "number", min: 0, max: 5, step: 0.1, default: 0, condition: (a) => a[9] === "نعم", required: true},
-  {text: "هل لديك تحاليل دم/بول حديثة؟", type: "select", options: ["نعم", "لا"], default: "لا", required: true},
-  {text: "مستوى الصوديوم في الدم (mmol/L)", type: "number", min: 120, max: 160, condition: (a) => a[14] === "نعم", required: true},
-  {text: "أسمولية البول (mOsm/kg)", type: "number", min: 0, max: 1500, condition: (a) => a[14] === "نعم", required: true},
-  {text: "كرياتينين (mg/dL)", type: "number", min: 0, max: 20, condition: (a) => a[14] === "نعم", required: true},
-  {text: "هل تتناول مدرات بول؟", type: "select", options: ["نعم", "لا"], default: "لا", required: true},
-  {text: "أسماء أدوية مهمة أخرى", type: "text", required: true},
-  {text: "مكملات تتناولها", type: "text", required: true},
-  {text: "كم ملليلتر من الكافيين يوميًا؟", type: "number", min: 0, max: 1000, default: 0, required: true},
-  {text: "كم لتر من المشروبات الرياضية/الإلكترولايت يوميًا؟", type: "number", min: 0, max: 5, default: 0, required: true},
-  {text: "كم لتر ماء عادي تشرب يوميًا تقريبًا؟", type: "number", min: 0, max: 5, default: 1, required: true},
-  {text: "نسبة الفواكه والخضار من النظام الغذائي (%)", type: "number", min: 0, max: 100, default: 30, required: true},
-  {text: "كم وجبة مالحة/مصنّعة يوميًا؟", type: "number", min: 0, max: 10, default: 1, required: true},
-  {text: "درجة الحرارة المحيطة (°م)", type: "number", min: -10, max: 60, default: 25, required: true},
-  {text: "نسبة الرطوبة (%)", type: "number", min: 0, max: 100, default: 50, required: true},
-  {text: "التمرين في الهواء الطلق؟", type: "select", options: ["نعم", "لا"], default: "لا", required: true},
-  {text: "كم ساعة تنام ليلًا؟", type: "number", min: 0, max: 12, default: 7, required: true},
-  {text: "هل تستيقظ عطشانًا ليلًا؟", type: "select", options: ["نعم", "لا"], default: "لا", required: true},
-  {text: "مرحلة الدورة (إناث فقط)", type: "select", options: ["حيض", "بويضة", "لا", "غير_مطبق"], condition: (a) => a[1] === "انثى", default: "لا", required: true},
-  {text: "هل تصوم حاليًا؟", type: "select", options: ["نعم", "لا"], default: "لا", required: true},
-  {text: "لون البول صباحًا/بعد التمرين", type: "select", options: ["شفاف", "فاتح", "غامق"], default: "فاتح", required: true},
-  {text: "كم مرة تتبول يوميًا؟", type: "number", min: 0, max: 20, default: 6, required: true},
-  {text: "هل تتبول ليلًا؟", type: "select", options: ["نعم", "لا"], default: "لا", required: true},
-  {text: "أعراض جفاف (صداع/تعب/تشنجات)?", type: "select", options: ["نعم", "لا"], default: "لا", required: true},
-  {text: "متوسط معدل ضربات القلب أثناء التمرين (BPM)", type: "number", min: 0, max: 220, default: 0, required: true},
-  {text: "وقت الاستيقاظ", type: "time", default: "06:00", placeholder: "اختر وقت الاستيقاظ (HH:MM)", required: true},
-  {text: "وقت النوم", type: "time", default: "22:30", placeholder: "اختر وقت النوم (HH:MM)", required: true},
-  {text: "وقت بدء التمرين", type: "time", default: "17:00", placeholder: "اختر وقت بدء التمرين (HH:MM)", required: true},
-  {text: "وقت انتهاء التمرين", type: "time", default: "18:00", placeholder: "اختر وقت انتهاء التمرين (HH:MM)", required: true},
-  {text: "وقت الإفطار", type: "time", default: "08:00", placeholder: "اختر وقت الإفطار (HH:MM)", required: true},
-  {text: "وقت السناك الصباحي", type: "time", default: "10:00", placeholder: "اختر وقت السناك الصباحي (HH:MM)", required: true},
-  {text: "وقت الغداء", type: "time", default: "13:00", placeholder: "اختر وقت الغداء (HH:MM)", required: true},
-  {text: "وقت السناك بعد الظهر", type: "time", default: "15:00", placeholder: "اختر وقت السناك بعد الظهر (HH:MM)", required: true},
-  {text: "وقت العشاء", type: "time", default: "19:00", placeholder: "اختر وقت العشاء (HH:MM)", required: true},
-  {text: "وقت السناك المسائي", type: "time", default: "20:00", placeholder: "اختر وقت السناك المسائي (HH:MM)", required: true}
-];
-
-const container = document.getElementById('questionContainer');
-let answers = [];
-let lastAnsweredIndex = -1;
-
-// Audio files with comments
-const audioFiles = {
-  splash: new Audio('welcome.mp3'), // صوت الترحيب عند النقر على زر ابدأ
-  welcome: new Audio('intro.mp3'), // صوت الترحيب عند ظهور الشاشة الرئيسية
-  processing: new Audio('moalaga.mp3'), // صوت إدخال كل الإجابات
-  program: new Audio('program.mp3'), // صوت ظهور الجدول النهائي
-  download: new Audio('download.mp3') // صوت التحميل عند تنزيل الصورة
-};
-
-// Function to play audio with high volume
-function playAudio(audio) {
-  audio.volume = 1.0;
-  audio.play().catch(err => console.error('Audio play error:', err));
-}
-
-window.addEventListener('load', () => {
-  const splash = document.getElementById('splash');
-  const splashCard = document.getElementById('splashCard');
-  const startButton = document.getElementById('startButton');
-  const mainContainer = document.querySelector('.container');
-
-  setTimeout(() => {
-    splashCard.classList.add('show');
-  }, 100);
-
-  startButton.addEventListener('click', () => {
-    playAudio(audioFiles.splash);
-    setTimeout(() => {
-      splash.classList.add('hide');
-      splash.addEventListener('transitionend', () => {
-        splash.remove();
-        mainContainer.classList.add('show');
-        const firstQ = createQuestionElement(questions[0], 0);
-        container.appendChild(firstQ);
-        setTimeout(() => firstQ.classList.add('show'), 50);
-        firstQ.querySelector('input,select').focus();
-        setTimeout(() => playAudio(audioFiles.welcome), 1000);
-      }, { once: true });
-    }, 2000);
-  });
-});
-
-function createQuestionElement(obj, index) {
-  const div = document.createElement('div');
-  div.classList.add('question');
-  const wrapper = document.createElement('div');
-  wrapper.classList.add('input-container');
-
-  const label = document.createElement('span');
-  label.classList.add('question-label');
-  label.textContent = obj.text;
-  div.appendChild(label);
-
-  let input;
-  const isMobile = window.innerWidth <= 480;
-  if (obj.type === "select") {
-    input = document.createElement('select');
-    const placeholder = document.createElement('option');
-    placeholder.value = "";
-    placeholder.disabled = true;
-    placeholder.selected = true;
-    placeholder.textContent = obj.text;
-    placeholder.style.color = "rgba(0,255,255,0.65)";
-    input.appendChild(placeholder);
-    obj.options.forEach(opt => {
-      const option = document.createElement('option');
-      option.value = opt;
-      option.textContent = opt;
-      input.appendChild(option);
-    });
-    input.addEventListener('change', handleSelect);
-  } else {
-    input = document.createElement('input');
-    input.type = obj.type === "time" ? "time" : obj.type;
-    input.placeholder = obj.placeholder || obj.text;
-    if (obj.type === "time") {
-      if (!isMobile) {
-        input.addEventListener('keypress', handleTimeEnter);
-      } else {
-        input.addEventListener('change', handleTimeChange);
-      }
-    } else {
-      input.addEventListener('keypress', handleEnter);
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js" crossorigin="anonymous"></script>
+  <script>
+    // Function to convert 24-hour time to 12-hour format with AM/PM
+    function to12HourFormat(timeStr) {
+      if (!timeStr || !/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(timeStr)) return timeStr;
+      let [hours, minutes] = timeStr.split(':').map(Number);
+      const period = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12 || 12; // Convert 0 to 12 for midnight
+      return `${hours}:${minutes.toString().padStart(2, '0')} ${period}`;
     }
-    if (obj.default !== undefined) input.value = obj.default;
-  }
 
-  input.required = true;
-  input.setAttribute('data-index', index);
-  input.addEventListener('focus', (e) => {
-    setTimeout(() => {
-      const rect = e.target.getBoundingClientRect();
-      const offset = rect.top + window.scrollY - 150;
-      window.scrollTo({ top: offset, behavior: 'smooth' });
-    }, 300);
-  });
-  wrapper.appendChild(input);
-  div.appendChild(wrapper);
-  return div;
-}
-
-function validateInput(value, obj) {
-  if (!value) return false;
-  if (obj.type === "number") {
-    const num = parseFloat(value);
-    if (isNaN(num)) return false;
-    if (obj.min !== undefined && num < obj.min) return false;
-    if (obj.max !== undefined && num > obj.max) return false;
-  }
-  if (obj.type === "select") return obj.options.includes(value);
-  if (obj.type === "time") return /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(value.trim());
-  if (obj.type === "text") return value.trim().length > 0;
-  return true;
-}
-
-function handleEnter(e) {
-  if (e.key === 'Enter') {
-    const idx = parseInt(e.target.getAttribute('data-index'));
-    const q = questions[idx];
-    const val = e.target.value;
-    if (!validateInput(val, q)) {
-      alert("⚠️ إدخال غير صالح. يرجى إدخال قيمة صحيحة.");
-      e.target.focus();
-      return;
+    // Function to convert 12-hour time back to 24-hour format (if needed for input validation)
+    function to24HourFormat(timeStr, period) {
+      if (!timeStr || !/^[0-9]{1,2}:[0-5][0-9]$/.test(timeStr)) return timeStr;
+      let [hours, minutes] = timeStr.split(':').map(Number);
+      if (period === 'PM' && hours !== 12) hours += 12;
+      if (period === 'AM' && hours === 12) hours = 0;
+      return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
     }
-    answers[idx] = val;
-    if (idx >= lastAnsweredIndex) {
-      lastAnsweredIndex = idx;
-      nextQuestion(idx);
+
+    const questions = [
+      { text: "الوزن (كجم)", type: "number", min: 10, max: 300, required: true },
+      { text: "مستوى النشاط اليومي", type: "select", options: ["عالي", "متوسط", "منخفض"], required: true },
+      { text: "شدة التمرين", type: "select", options: ["عالية", "متوسطة", "منخفضة"], required: true },
+      { text: "مدة التمرين (دقيقة)", type: "number", min: 0, max: 300, default: 45, required: true },
+      { text: "درجة الحرارة المحيطة (°م)", type: "number", min: -10, max: 60, default: 25, required: true },
+      { text: "وقت بدء التمرين", type: "time", default: "17:00", placeholder: "اختر وقت بدء التمرين (ساعة:دقيقة)", required: true },
+      { text: "وقت انتهاء التمرين", type: "time", default: "18:00", placeholder: "اختر وقت انتهاء التمرين (ساعة:دقيقة)", required: true },
+      { text: "وقت الاستيقاظ", type: "time", default: "06:00", placeholder: "اختر وقت الاستيقاظ (ساعة:دقيقة)", required: true },
+      { text: "وقت الإفطار", type: "time", default: "08:00", placeholder: "اختر وقت الإفطار (ساعة:دقيقة)", required: true },
+      { text: "وقت الغداء", type: "time", default: "13:00", placeholder: "اختر وقت الغداء (ساعة:دقيقة)", required: true },
+      { text: "وقت العشاء", type: "time", default: "19:00", placeholder: "اختر وقت العشاء (ساعة:دقيقة)", required: true },
+      { text: "وقت النوم", type: "time", default: "22:30", placeholder: "اختر وقت النوم (ساعة:دقيقة)", required: true }
+    ];
+
+    const container = document.getElementById('questionContainer');
+    let answers = [];
+    let lastAnsweredIndex = -1;
+
+    // Audio files
+    const audioFiles = {
+      splash: new Audio('welcome.mp3'),
+      welcome: new Audio('intro.mp3'),
+      processing: new Audio('moalaga.mp3'),
+      program: new Audio('program.mp3'),
+      download: new Audio('download.mp3')
+    };
+
+    function playAudio(audio) {
+      audio.volume = 1.0;
+      audio.play().catch(err => console.error('Audio play error:', err));
     }
-  }
-}
 
-function handleSelect(e) {
-  const idx = parseInt(e.target.getAttribute('data-index'));
-  const val = e.target.value;
-  if (!validateInput(val, questions[idx])) {
-    alert("⚠️ إدخال غير صالح. يرجى اختيار قيمة.");
-    e.target.focus();
-    return;
-  }
-  answers[idx] = val;
-  if (idx >= lastAnsweredIndex) {
-    lastAnsweredIndex = idx;
-    nextQuestion(idx);
-  }
-}
-
-function handleTimeChange(e) {
-  const idx = parseInt(e.target.getAttribute('data-index'));
-  const val = e.target.value;
-  if (!validateInput(val, questions[idx])) {
-    alert("⚠️ إدخال غير صالح. يرجى إدخال وقت صحيح.");
-    e.target.focus();
-    return;
-  }
-  answers[idx] = val;
-  if (idx >= lastAnsweredIndex) {
-    lastAnsweredIndex = idx;
-    nextQuestion(idx);
-  }
-}
-
-function handleTimeEnter(e) {
-  if (e.key === 'Enter') {
-    const idx = parseInt(e.target.getAttribute('data-index'));
-    const val = e.target.value;
-    if (!validateInput(val, questions[idx])) {
-      alert("⚠️ إدخال غير صالح. يرجى إدخال وقت صحيح.");
-      e.target.focus();
-      return;
+    // Function to generate a unique key for localStorage based on schedule date
+    function getStorageKey() {
+      const now = new Date();
+      const dateStr = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
+      return `hydration_checkboxes_${dateStr}`;
     }
-    answers[idx] = val;
-    if (idx >= lastAnsweredIndex) {
-      lastAnsweredIndex = idx;
-      nextQuestion(idx);
+
+    // Function to save checkbox states to localStorage
+    function saveCheckboxStates(checkboxStates) {
+      localStorage.setItem(getStorageKey(), JSON.stringify(checkboxStates));
     }
-  }
-}
 
-function nextQuestion(idx) {
-  let nextIndex = idx + 1;
-  while (nextIndex < questions.length) {
-    const nextQ = questions[nextIndex];
-    if (!nextQ.condition || nextQ.condition(answers)) break;
-    nextIndex++;
-  }
-  if (nextIndex < questions.length) {
-    const nextElem = createQuestionElement(questions[nextIndex], nextIndex);
-    container.appendChild(nextElem);
-    setTimeout(() => nextElem.classList.add('show'), 50);
-    nextElem.querySelector('input,select').focus();
-    setTimeout(() => {
-      nextElem.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 100);
-  } else {
-    playAudio(audioFiles.processing);
-    setTimeout(showResult, 2000);
-  }
-}
+    // Function to load checkbox states from localStorage
+    function loadCheckboxStates() {
+      const data = localStorage.getItem(getStorageKey());
+      return data ? JSON.parse(data) : {};
+    }
 
-function addMinutes(timeStr, mins) {
-  const [h, m] = timeStr.split(':').map(Number);
-  let totalMins = h * 60 + m + mins;
-  if (totalMins < 0) totalMins += 1440;
-  const newH = Math.floor(totalMins / 60) % 24;
-  const newM = totalMins % 60;
-  return `${newH.toString().padStart(2, '0')}:${newM.toString().padStart(2, '0')}`;
-}
+    window.addEventListener('load', () => {
+      const splash = document.getElementById('splash');
+      const splashCard = document.getElementById('splashCard');
+      const startButton = document.getElementById('startButton');
+      const mainContainer = document.querySelector('.container');
 
-function showResult() {
-  let user = {};
-  questions.forEach((q, i) => { user[i] = answers[i]; });
-  let base = parseFloat(user[2] * 0.033 * 0.94);
-  if (user[4] && parseFloat(user[4]) < 15) base += base * 0.05;
-  if (user[1] === "انثى") base -= base * 0.10;
-  if (user[0] > 40) base += 0.05;
-  base += (parseFloat(user[6] || 3) * 0.2) + ((parseFloat(user[7] || 45) / 60) * 0.8);
-  if (parseFloat(user[8] || 6) > 7 || parseFloat(user[44] || 0) > 150) base *= 1.12;
-  if (user[9] === "نعم" && user[10] && user[11]) {
-    let sweat = (parseFloat(user[10]) - parseFloat(user[11])) + parseFloat(user[13] || 0);
-    base += sweat * (parseFloat(user[6] || 3) / 7);
-  }
-  if (parseFloat(user[22] || 0) > 400) base += 0.2;
-  if (user[19] === "نعم") base += 0.7;
-  if (user[20] && user[20].toLowerCase().includes("creat")) base += 0.25;
-  if (parseFloat(user[29] || 7) < 7 || user[30] === "نعم") base += 0.2;
-  if (user[34] === "غامق") base += 0.5;
-  if (user[36] === "نعم") base += 0.4;
-  base = Math.max(2.0, Math.min(base, 6.0));
-  base = Math.round(base * 100) / 100;
+      setTimeout(() => {
+        splashCard.classList.add('show');
+      }, 100);
 
-  const div = document.createElement('div');
-  div.classList.add('result-card');
-  div.innerHTML = `<strong>💧 الترطيب اليومي المقدر:</strong> ${base} لتر/يوم`;
-  container.appendChild(div);
-  setTimeout(() => div.classList.add('show'), 50);
-  div.scrollIntoView({ behavior: 'smooth', block: 'end' });
-
-  const wake_time = user[38] || "06:00";
-  const sleep_time = user[39] || "22:30";
-  const exercise_start = user[40] || "17:00";
-  const exercise_end = user[41] || "18:00";
-  const breakfast_time = user[42] || "08:00";
-  const morning_snack_time = user[43] || "10:00";
-  const lunch_time = user[44] || "13:00";
-  const afternoon_snack_time = user[45] || "15:00";
-  const dinner_time = user[46] || "19:00";
-  const evening_snack_time = user[47] || "20:00";
-  let total_ml = base * 1000;
-
-  const windows = [
-    ["استيقاظ", 0.20], ["تحضير الصباح", 0.06], ["إفطار", 0.14], ["سناك صباحي", 0.06],
-    ["غداء", 0.14], ["سناك بعد الظهر", 0.09], ["قبل التمرين", 0.06],
-    ["أثناء التمرين", 0.14], ["بعد التمرين", 0.09], ["عشاء", 0.11], ["سناك مسائي", 0.05],
-    ["قبل النوم", 0.05]
-  ];
-
-  const times = {
-    "استيقاظ": wake_time,
-    "تحضير الصباح": addMinutes(wake_time, 30),
-    "إفطار": breakfast_time,
-    "سناك صباحي": morning_snack_time,
-    "غداء": lunch_time,
-    "سناك بعد الظهر": afternoon_snack_time,
-    "قبل التمرين": addMinutes(exercise_start, -30),
-    "أثناء التمرين": exercise_start,
-    "بعد التمرين": exercise_end,
-    "عشاء": dinner_time,
-    "سناك مسائي": evening_snack_time,
-    "قبل النوم": addMinutes(sleep_time, -30)
-  };
-
-  let scheduleDiv = document.createElement('div');
-  scheduleDiv.classList.add('schedule-card');
-  scheduleDiv.id = "scheduleCard";
-  scheduleDiv.innerHTML = "<strong>Your Program</strong><br><br>";
-
-  windows.forEach((w, i) => {
-    const timeStr = times[w[0]];
-    let ml = Math.round(total_ml * w[1]);
-    ml = Math.max(120, Math.min(350, ml));
-    const line = document.createElement('div');
-    line.classList.add('schedule-line');
-    line.innerHTML = `<span>${timeStr}</span><span>${ml} mL</span>`;
-    scheduleDiv.appendChild(line);
-  });
-
-  const btn = document.createElement("button");
-  btn.classList.add("download-btn");
-  btn.setAttribute("title", "تحميل الجدول كصورة");
-  btn.innerHTML = "⬇️";
-
-  btn.addEventListener("click", async () => {
-    try {
-      btn.classList.add("busy");
-      btn.innerHTML = "⏳";
-
-      const clone = scheduleDiv.cloneNode(true);
-      const btnInClone = clone.querySelector('.download-btn');
-      if (btnInClone) btnInClone.remove();
-
-      const isMobile = window.innerWidth <= 480;
-      const baseWidth = isMobile ? window.innerWidth * 0.90 : Math.min(window.innerWidth * 0.85, 620);
-      const fontSize = isMobile ? 18 : 20;
-      const titleFontSize = isMobile ? 22 : 24;
-      const padding = isMobile ? 15 : 20;
-      const linePadding = isMobile ? 8 : 10;
-      const lineMargin = isMobile ? 8 : 10;
-
-      clone.style.position = 'absolute';
-      clone.style.left = '-99999px';
-      clone.style.top = '0';
-      clone.style.width = `${baseWidth}px`;
-      clone.style.height = 'auto';
-      clone.style.minHeight = 'fit-content';
-      clone.style.background = '#000000';
-      clone.style.border = '3px solid #00ffff';
-      clone.style.color = '#00ffff';
-      clone.style.fontFamily = '"Almarai", "Noto Naskh Arabic", Arial, sans-serif';
-      clone.style.fontWeight = '900';
-      clone.style.direction = 'rtl';
-      clone.style.textAlign = 'center';
-      clone.style.letterSpacing = '0.5px';
-      clone.style.wordSpacing = 'normal';
-      clone.style.unicodeBidi = 'embed';
-      clone.style.textRendering = 'optimizeLegibility';
-      clone.style.webkitFontSmoothing = 'antialiased';
-      clone.style.mozOsxFontSmoothing = 'grayscale';
-      clone.style.fontKerning = 'normal';
-      clone.style.padding = `${padding}px`;
-      clone.style.borderRadius = '16px';
-      clone.style.boxShadow = '0 10px 30px rgba(0, 255, 255, 0.6)';
-      clone.style.margin = '0 auto';
-      clone.style.display = 'flex';
-      clone.style.flexDirection = 'column';
-      clone.style.alignItems = 'center';
-
-      const title = clone.querySelector('strong');
-      if (title) {
-        title.style.fontSize = `${titleFontSize}px`;
-        title.style.marginBottom = '20px';
-        title.style.display = 'block';
-        title.style.color = '#00ffff';
-        title.style.fontWeight = '900';
-        title.style.textAlign = 'center';
-        title.style.textShadow = '0 0 5px rgba(0, 255, 255, 0.4)';
-      }
-
-      const lines = clone.querySelectorAll('.schedule-line');
-      lines.forEach(line => {
-        line.style.display = 'flex';
-        line.style.justifyContent = 'space-between';
-        line.style.alignItems = 'center';
-        line.style.width = '100%';
-        line.style.maxWidth = '420px';
-        line.style.padding = `${linePadding}px`;
-        line.style.margin = `${lineMargin}px auto`;
-        line.style.background = 'linear-gradient(135deg, rgba(0, 255, 255, 0.25), rgba(106, 17, 203, 0.25))';
-        line.style.boxShadow = '0 2px 10px rgba(0, 255, 255, 0.3)';
-        const spans = line.querySelectorAll('span');
-        spans.forEach(span => {
-          span.style.display = 'inline-block';
-          span.style.fontSize = `${fontSize}px`;
-          span.style.fontWeight = '900';
-          span.style.color = '#00ffff';
-          span.style.whiteSpace = 'nowrap';
-          span.style.overflow = 'visible';
-          span.style.unicodeBidi = 'embed';
-          span.style.textAlign = 'center';
-          span.style.width = '50%';
-          span.style.opacity = '0.95';
-          span.style.textShadow = '0 0 5px rgba(0, 255, 255, 0.3)';
-        });
+      startButton.addEventListener('click', () => {
+        playAudio(audioFiles.splash);
+        setTimeout(() => {
+          splash.classList.add('hide');
+          splash.addEventListener('transitionend', () => {
+            splash.remove();
+            mainContainer.classList.add('show');
+            const firstQ = createQuestionElement(questions[0], 0);
+            container.appendChild(firstQ);
+            setTimeout(() => firstQ.classList.add('show'), 50);
+            firstQ.querySelector('input,select').focus();
+            updateProgressBar();
+            setTimeout(() => playAudio(audioFiles.welcome), 1000);
+          }, { once: true });
+        }, 2000);
       });
+    });
 
-      document.body.appendChild(clone);
-      clone.offsetHeight;
-      await document.fonts.load(`900 ${fontSize}px Almarai`);
-      await document.fonts.load(`900 ${fontSize}px "Noto Naskh Arabic"`);
-      await document.fonts.ready;
-      await new Promise(resolve => setTimeout(resolve, 300));
+    function createQuestionElement(obj, index) {
+      const div = document.createElement('div');
+      div.classList.add('question');
+      const wrapper = document.createElement('div');
+      wrapper.classList.add('input-container');
 
-      const pixelRatio = window.devicePixelRatio || 1;
-      const scale = isMobile ? 4 : 3;
-      const canvasWidth = Math.round(clone.getBoundingClientRect().width * scale);
-      const canvasHeight = Math.round(clone.getBoundingClientRect().height * scale);
-      const opts = {
-        scale: scale,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: 'rgba(0, 0, 0, 0.3)',
-        logging: false,
-        width: canvasWidth / scale,
-        height: canvasHeight / scale,
-        windowWidth: clone.scrollWidth,
-        windowHeight: clone.scrollHeight
+      const label = document.createElement('span');
+      label.classList.add('question-label');
+      label.textContent = obj.text;
+      div.appendChild(label);
+
+      let input;
+      const isMobile = window.innerWidth <= 480;
+      if (obj.type === "select") {
+        input = document.createElement('select');
+        const placeholder = document.createElement('option');
+        placeholder.value = "";
+        placeholder.disabled = true;
+        placeholder.selected = true;
+        placeholder.textContent = obj.text;
+        placeholder.style.color = "rgba(0,255,255,0.65)";
+        input.appendChild(placeholder);
+        obj.options.forEach(opt => {
+          const option = document.createElement('option');
+          option.value = opt;
+          option.textContent = opt;
+          input.appendChild(option);
+        });
+        input.addEventListener('change', handleSelect);
+      } else {
+        input = document.createElement('input');
+        input.type = obj.type === "time" ? "time" : obj.type;
+        input.placeholder = obj.placeholder || obj.text;
+        if (obj.type === "time") {
+          if (!isMobile) {
+            input.addEventListener('keypress', handleTimeEnter);
+          } else {
+            input.addEventListener('change', handleTimeChange);
+          }
+        } else {
+          input.addEventListener('keypress', handleEnter);
+        }
+        if (obj.default !== undefined) input.value = obj.default;
+      }
+
+      input.required = true;
+      input.setAttribute('data-index', index);
+      input.addEventListener('focus', (e) => {
+        setTimeout(() => {
+          const rect = e.target.getBoundingClientRect();
+          const offset = rect.top + window.scrollY - 150;
+          window.scrollTo({ top: offset, behavior: 'smooth' });
+        }, 300);
+      });
+      wrapper.appendChild(input);
+      div.appendChild(wrapper);
+      return div;
+    }
+
+    function validateInput(value, obj) {
+      if (!value) return false;
+      if (obj.type === "number") {
+        const num = parseFloat(value);
+        if (isNaN(num)) return false;
+        if (obj.min !== undefined && num < obj.min) return false;
+        if (obj.max !== undefined && num > obj.max) return false;
+      }
+      if (obj.type === "select") return obj.options.includes(value);
+      if (obj.type === "time") return /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(value.trim());
+      return true;
+    }
+
+    function updateProgressBar() {
+      const progressBar = document.getElementById('progressBar');
+      const progress = ((lastAnsweredIndex + 1) / questions.length) * 100;
+      progressBar.style.width = `${progress}%`;
+    }
+
+    function hideProgressBar() {
+      const progressBarContainer = document.getElementById('progressBarContainer');
+      progressBarContainer.classList.add('hidden');
+    }
+
+    function handleEnter(e) {
+      if (e.key === 'Enter') {
+        const idx = parseInt(e.target.getAttribute('data-index'));
+        const q = questions[idx];
+        const val = e.target.value;
+        if (!validateInput(val, q)) {
+          alert("⚠️ إدخال غير صالح. يرجى إدخال قيمة صحيحة.");
+          e.target.focus();
+          return;
+        }
+        answers[idx] = val;
+        if (idx >= lastAnsweredIndex) {
+          lastAnsweredIndex = idx;
+          updateProgressBar();
+          nextQuestion(idx);
+        }
+      }
+    }
+
+    function handleSelect(e) {
+      const idx = parseInt(e.target.getAttribute('data-index'));
+      const val = e.target.value;
+      if (!validateInput(val, questions[idx])) {
+        alert("⚠️ إدخال غير صالح. يرجى اختيار قيمة.");
+        e.target.focus();
+        return;
+      }
+      answers[idx] = val;
+      if (idx >= lastAnsweredIndex) {
+        lastAnsweredIndex = idx;
+        updateProgressBar();
+        nextQuestion(idx);
+      }
+    }
+
+    function handleTimeChange(e) {
+      const idx = parseInt(e.target.getAttribute('data-index'));
+      const val = e.target.value;
+      if (!validateInput(val, questions[idx])) {
+        alert("⚠️ إدخال غير صالح. يرجى إدخال وقت صحيح.");
+        e.target.focus();
+        return;
+      }
+      answers[idx] = val;
+      if (idx >= lastAnsweredIndex) {
+        lastAnsweredIndex = idx;
+        updateProgressBar();
+        nextQuestion(idx);
+      }
+    }
+
+    function handleTimeEnter(e) {
+      if (e.key === 'Enter') {
+        const idx = parseInt(e.target.getAttribute('data-index'));
+        const val = e.target.value;
+        if (!validateInput(val, questions[idx])) {
+          alert("⚠️ إدخال غير صالح. يرجى إدخال وقت صحيح.");
+          e.target.focus();
+          return;
+        }
+        answers[idx] = val;
+        if (idx >= lastAnsweredIndex) {
+          lastAnsweredIndex = idx;
+          updateProgressBar();
+          nextQuestion(idx);
+        }
+      }
+    }
+
+    function nextQuestion(idx) {
+      let nextIndex = idx + 1;
+      if (nextIndex < questions.length) {
+        const nextElem = createQuestionElement(questions[nextIndex], nextIndex);
+        container.appendChild(nextElem);
+        setTimeout(() => nextElem.classList.add('show'), 50);
+        nextElem.querySelector('input,select').focus();
+        setTimeout(() => {
+          nextElem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+      } else {
+        playAudio(audioFiles.processing);
+        setTimeout(showResult, 2000);
+      }
+    }
+
+    function addMinutes(timeStr, mins) {
+      const [h, m] = timeStr.split(':').map(Number);
+      let totalMins = h * 60 + m + mins;
+      if (totalMins < 0) totalMins += 1440;
+      const newH = Math.floor(totalMins / 60) % 24;
+      const newM = totalMins % 60;
+      return `${newH.toString().padStart(2, '0')}:${newM.toString().padStart(2, '0')}`;
+    }
+
+    function timeToMinutes(timeStr) {
+      const [h, m] = timeStr.split(':').map(Number);
+      return h * 60 + m;
+    }
+
+    function generateWaterDistribution(total_ml, user) {
+      const wake_time = user[7] || "06:00";
+      const breakfast_time = user[8] || "08:00";
+      const lunch_time = user[9] || "13:00";
+      const exercise_start = user[5] || "17:00";
+      const exercise_end = user[6] || "18:00";
+      const dinner_time = user[10] || "19:00";
+      const sleep_time = user[11] || "22:30";
+      const activity_level = user[1];
+      const exercise_intensity = user[2];
+      const exercise_duration = parseFloat(user[3]) || 45;
+      const temperature = parseFloat(user[4]) || 25;
+
+      // Calculate mid-morning time as average between breakfast and lunch
+      const breakfast_minutes = timeToMinutes(breakfast_time);
+      const lunch_minutes = timeToMinutes(lunch_time);
+      let mid_morning_minutes = (breakfast_minutes + lunch_minutes) / 2;
+      if (lunch_minutes < breakfast_minutes) mid_morning_minutes += 720; // Handle overnight cases
+      const mid_morning_time = addMinutes("00:00", Math.round(mid_morning_minutes));
+
+      // Calculate awake duration (in hours)
+      let awake_duration = (timeToMinutes(sleep_time) - timeToMinutes(wake_time)) / 60;
+      if (awake_duration < 0) awake_duration += 24;
+
+      // Base percentages
+      let base_percentages = {
+        "استيقاظ": 0.12,
+        "إفطار": 0.08,
+        "منتصف الصباح": 0.10,
+        "غداء": 0.15,
+        "قبل التمرين": 0.10,
+        "أثناء التمرين": 0.12,
+        "بعد التمرين": 0.15,
+        "عشاء": 0.10,
+        "قبل النوم": 0.08
       };
 
-      const canvas = await html2canvas(clone, opts);
-      clone.remove();
+      // Adjust percentages based on conditions
+      if (exercise_intensity === "عالية" || exercise_duration > 60) {
+        base_percentages["قبل التمرين"] += 0.02;
+        base_percentages["أثناء التمرين"] += 0.03;
+        base_percentages["بعد التمرين"] += 0.03;
+        base_percentages["إفطار"] -= 0.02;
+        base_percentages["منتصف الصباح"] -= 0.03;
+        base_percentages["عشاء"] -= 0.03;
+      }
+      if (temperature > 30) {
+        base_percentages["منتصف الصباح"] += 0.02;
+        base_percentages["غداء"] += 0.02;
+        base_percentages["قبل النوم"] -= 0.02;
+        base_percentages["إفطار"] -= 0.02;
+      }
+      if (activity_level === "عالي") {
+        base_percentages["منتصف الصباح"] += 0.02;
+        base_percentages["قبل التمرين"] += 0.01;
+        base_percentages["عشاء"] -= 0.02;
+        base_percentages["قبل النوم"] -= 0.01;
+      }
+      if (awake_duration < 12) {
+        base_percentages["منتصف الصباح"] -= 0.02;
+        base_percentages["غداء"] += 0.01;
+        base_percentages["عشاء"] += 0.01;
+      }
 
-      canvas.toBlob((blob) => {
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        const now = new Date();
-        const pad = n => n.toString().padStart(2, '0');
-        const fname = `hydration_${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}.png`;
-        link.download = fname;
-        link.href = url;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-        btn.innerHTML = "✅";
-        setTimeout(() => {
-          btn.innerHTML = "⬇️";
-          btn.classList.remove("busy");
-        }, 1200);
-        setTimeout(() => playAudio(audioFiles.download), 3000);
-      }, 'image/png', 1.0);
+      // Apply random variation (±2%)
+      const varied_percentages = {};
+      let total_percentage = 0;
+      Object.keys(base_percentages).forEach(key => {
+        const variation = (Math.random() * 0.04 - 0.02); // Random between -2% and +2%
+        varied_percentages[key] = Math.max(0.05, base_percentages[key] + variation);
+        total_percentage += varied_percentages[key];
+      });
 
-    } catch (err) {
-      console.error(err);
-      alert("حدث خطأ أثناء إنشاء الصورة. حاول مرة أخرى.");
-      btn.classList.remove("busy");
-      btn.innerHTML = "⬇️";
+      // Normalize percentages to sum to 100%
+      const normalization_factor = 1 / total_percentage;
+      Object.keys(varied_percentages).forEach(key => {
+        varied_percentages[key] *= normalization_factor;
+      });
+
+      // Define time points
+      const time_points = {
+        "استيقاظ": wake_time,
+        "إفطار": breakfast_time,
+        "منتصف الصباح": mid_morning_time,
+        "غداء": lunch_time,
+        "قبل التمرين": addMinutes(exercise_start, -30),
+        "أثناء التمرين": exercise_start,
+        "بعد التمرين": exercise_end,
+        "عشاء": dinner_time,
+        "قبل النوم": addMinutes(sleep_time, -30)
+      };
+
+      // Calculate water amounts
+      const schedule = [];
+      Object.keys(varied_percentages).forEach(key => {
+        let ml = Math.round(total_ml * varied_percentages[key]);
+        ml = Math.max(100, Math.min(350, ml));
+        schedule.push([key, ml, to12HourFormat(time_points[key])]);
+      });
+
+      // Ensure total matches total_ml
+      let current_total = schedule.reduce((sum, [, ml]) => sum + ml, 0);
+      if (current_total !== total_ml) {
+        const diff = total_ml - current_total;
+        const max_ml_index = schedule.reduce((max_idx, [, ml], idx) => ml > schedule[max_idx][1] ? idx : max_idx, 0);
+        schedule[max_ml_index][1] += diff;
+        schedule[max_ml_index][1] = Math.max(100, Math.min(350, schedule[max_ml_index][1]));
+      }
+
+      return schedule;
     }
-  });
 
-  scheduleDiv.appendChild(btn);
-  container.appendChild(scheduleDiv);
-  setTimeout(() => {
-    scheduleDiv.classList.add('show');
-    setTimeout(() => playAudio(audioFiles.program), 1000);
-  }, 50);
-  scheduleDiv.scrollIntoView({ behavior: 'smooth', block: 'end' });
-}
-</script>
+    function showResult() {
+      let user = {};
+      questions.forEach((q, i) => { user[i] = answers[i]; });
+
+      // Calculate daily water intake
+      let base = parseFloat(user[0]) * 0.035; // 35 ml/kg as base
+      if (user[1] === "عالي") base *= 1.20; // +20% for high activity
+      else if (user[1] === "متوسط") base *= 1.10; // +10% for medium activity
+      if (user[2] === "عالية") base += 0.5 * (parseFloat(user[3]) / 60); // +0.5 L/hour for high intensity
+      else if (user[2] === "متوسطة") base += 0.3 * (parseFloat(user[3]) / 60); // +0.3 L/hour for medium intensity
+      else if (user[2] === "منخفضة") base += 0.1 * (parseFloat(user[3]) / 60); // +0.1 L/hour for low intensity
+      if (parseFloat(user[4]) > 40) base += 0.5; // +0.5 L for very high temperature
+      else if (parseFloat(user[4]) > 30) base += 0.3; // +0.3 L for high temperature
+      base = Math.max(1.5, Math.min(base, 5.0)); // Limit between 1.5 and 5 liters
+      base = Math.round(base * 100) / 100;
+
+      const div = document.createElement('div');
+      div.classList.add('result-card');
+      div.innerHTML = `<strong>💧 الترطيب اليومي المقدر:</strong> ${base} لتر/يوم`;
+      container.appendChild(div);
+      setTimeout(() => div.classList.add('show'), 50);
+      div.scrollIntoView({ behavior: 'smooth', block: 'end' });
+
+      // Generate water distribution
+      const total_ml = base * 1000;
+      const schedule = generateWaterDistribution(total_ml, user);
+
+      let scheduleDiv = document.createElement('div');
+      scheduleDiv.classList.add('schedule-card');
+      scheduleDiv.id = "scheduleCard";
+      scheduleDiv.innerHTML = "<strong>جدول الترطيب اليومي</strong><br><br>";
+
+      // Load saved checkbox states
+      const checkboxStates = loadCheckboxStates();
+
+      schedule.forEach(([name, ml, time], index) => {
+        const line = document.createElement('div');
+        line.classList.add('schedule-line');
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.setAttribute('data-key', `checkbox_${index}`);
+        // Set checkbox state based on localStorage
+        checkbox.checked = !!checkboxStates[`checkbox_${index}`];
+        checkbox.addEventListener('change', () => {
+          const updatedStates = loadCheckboxStates();
+          updatedStates[`checkbox_${index}`] = checkbox.checked;
+          saveCheckboxStates(updatedStates);
+        });
+        line.innerHTML = `<span>${time}</span><span>${ml} mL</span>`;
+        line.appendChild(checkbox);
+        scheduleDiv.appendChild(line);
+      });
+
+      const btn = document.createElement("button");
+      btn.classList.add("download-btn");
+      btn.setAttribute("title", "تحميل الجدول كصورة");
+      btn.innerHTML = '<i class="fas fa-chevron-down"></i>';
+
+      btn.addEventListener("click", async () => {
+        try {
+          btn.classList.add("busy");
+          btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+          const clone = scheduleDiv.cloneNode(true);
+          const btnInClone = clone.querySelector('.download-btn');
+          if (btnInClone) btnInClone.remove();
+
+          // Remove checkboxes from the clone for the screenshot
+          const checkboxes = clone.querySelectorAll('input[type="checkbox"]');
+          checkboxes.forEach(checkbox => checkbox.remove());
+
+          const isMobile = window.innerWidth <= 480;
+          const baseWidth = isMobile ? window.innerWidth * 0.90 : Math.min(window.innerWidth * 0.85, 620);
+          const fontSize = isMobile ? 18 : 20;
+          const titleFontSize = isMobile ? 22 : 24;
+          const padding = isMobile ? 15 : 20;
+          const linePadding = isMobile ? 8 : 10;
+          const lineMargin = isMobile ? 8 : 10;
+
+          clone.style.position = 'absolute';
+          clone.style.left = '-99999px';
+          clone.style.top = '0';
+          clone.style.width = `${baseWidth}px`;
+          clone.style.height = 'auto';
+          clone.style.minHeight = 'fit-content';
+          clone.style.background = '#000000';
+          clone.style.border = '3px solid #00ffff';
+          clone.style.color = '#00ffff';
+          clone.style.fontFamily = '"Almarai", "Noto Naskh Arabic", Arial, sans-serif';
+          clone.style.fontWeight = '900';
+          clone.style.direction = 'rtl';
+          clone.style.textAlign = 'center';
+          clone.style.letterSpacing = '0.5px';
+          clone.style.wordSpacing = 'normal';
+          clone.style.unicodeBidi = 'embed';
+          clone.style.textRendering = 'optimizeLegibility';
+          clone.style.webkitFontSmoothing = 'antialiased';
+          clone.style.mozOsxFontSmoothing = 'grayscale';
+          clone.style.fontKerning = 'normal';
+          clone.style.padding = `${padding}px`;
+          clone.style.borderRadius = '16px';
+          clone.style.boxShadow = '0 10px 30px rgba(0, 255, 255, 0.6)';
+          clone.style.margin = '0 auto';
+          clone.style.display = 'flex';
+          clone.style.flexDirection = 'column';
+          clone.style.alignItems = 'center';
+
+          const title = clone.querySelector('strong');
+          if (title) {
+            title.style.fontSize = `${titleFontSize}px`;
+            title.style.marginBottom = '20px';
+            title.style.display = 'block';
+            title.style.color = '#00ffff';
+            title.style.fontWeight = '900';
+            title.style.textAlign = 'center';
+            title.style.textShadow = '0 0 5px rgba(0, 255, 255, 0.4)';
+          }
+
+          const lines = clone.querySelectorAll('.schedule-line');
+          lines.forEach(line => {
+            line.style.display = 'flex';
+            line.style.justifyContent = 'space-between';
+            line.style.alignItems = 'center';
+            line.style.width = '100%';
+            line.style.maxWidth = '420px';
+            line.style.padding = `${linePadding}px`;
+            line.style.margin = `${lineMargin}px auto`;
+            line.style.background = 'linear-gradient(135deg, rgba(0, 255, 255, 0.25), rgba(106, 17, 203, 0.25))';
+            line.style.boxShadow = '0 2px 10px rgba(0, 255, 255, 0.3)';
+            const spans = line.querySelectorAll('span');
+            spans.forEach(span => {
+              span.style.display = 'inline-block';
+              span.style.fontSize = `${fontSize}px`;
+              span.style.fontWeight = '900';
+              span.style.color = '#00ffff';
+              span.style.whiteSpace = 'nowrap';
+              span.style.overflow = 'visible';
+              span.style.unicodeBidi = 'embed';
+              span.style.textAlign = 'center';
+              span.style.width = '50%'; // Adjust width to account for removed checkbox
+              span.style.opacity = '0.95';
+              span.style.textShadow = '0 0 5px rgba(0, 255, 255, 0.3)';
+            });
+          });
+
+          document.body.appendChild(clone);
+          clone.offsetHeight;
+          await document.fonts.load(`900 ${fontSize}px Almarai`);
+          await document.fonts.load(`900 ${fontSize}px "Noto Naskh Arabic"`);
+          await document.fonts.ready;
+          await new Promise(resolve => setTimeout(resolve, 300));
+
+          const pixelRatio = window.devicePixelRatio || 1;
+          const scale = isMobile ? 4 : 3;
+          const canvasWidth = Math.round(clone.getBoundingClientRect().width * scale);
+          const canvasHeight = Math.round(clone.getBoundingClientRect().height * scale);
+          const opts = {
+            scale: scale,
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: 'rgba(0, 0, 0, 0.3)',
+            logging: false,
+            width: canvasWidth / scale,
+            height: canvasHeight / scale,
+            windowWidth: clone.scrollWidth,
+            windowHeight: clone.scrollHeight
+          };
+
+          const canvas = await html2canvas(clone, opts);
+          clone.remove();
+
+          canvas.toBlob((blob) => {
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            const now = new Date();
+            const pad = n => n.toString().padStart(2, '0');
+            const fname = `hydration_${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}.png`;
+            link.download = fname;
+            link.href = url;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            btn.innerHTML = '<i class="fas fa-check"></i>';
+            setTimeout(() => {
+              btn.innerHTML = '<i class="fas fa-chevron-down"></i>';
+              btn.classList.remove("busy");
+            }, 1200);
+            setTimeout(() => playAudio(audioFiles.download), 3000);
+          }, 'image/png', 1.0);
+
+        } catch (err) {
+          console.error(err);
+          alert("حدث خطأ أثناء إنشاء الصورة. حاول مرة أخرى.");
+          btn.classList.remove("busy");
+          btn.innerHTML = '<i class="fas fa-chevron-down"></i>';
+        }
+      });
+
+      scheduleDiv.appendChild(btn);
+      container.appendChild(scheduleDiv);
+      setTimeout(() => {
+        scheduleDiv.classList.add('show');
+        hideProgressBar();
+        setTimeout(() => playAudio(audioFiles.program), 1000);
+      }, 50);
+      scheduleDiv.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+  </script>
 </body>
 </html>
