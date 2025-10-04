@@ -515,11 +515,33 @@
       return data ? JSON.parse(data) : {};
     }
 
+    // Function to save user progress (answers and lastAnsweredIndex)
+    function saveProgress() {
+      const progress = {
+        answers: answers,
+        lastAnsweredIndex: lastAnsweredIndex
+      };
+      localStorage.setItem('hydration_progress', JSON.stringify(progress));
+    }
+
+    // Function to load user progress
+    function loadProgress() {
+      const data = localStorage.getItem('hydration_progress');
+      if (data) {
+        const progress = JSON.parse(data);
+        answers = progress.answers || [];
+        lastAnsweredIndex = progress.lastAnsweredIndex || -1;
+      }
+    }
+
     window.addEventListener('load', () => {
       const splash = document.getElementById('splash');
       const splashCard = document.getElementById('splashCard');
       const startButton = document.getElementById('startButton');
       const mainContainer = document.querySelector('.container');
+
+      // Load saved progress
+      loadProgress();
 
       setTimeout(() => {
         splashCard.classList.add('show');
@@ -532,12 +554,32 @@
           splash.addEventListener('transitionend', () => {
             splash.remove();
             mainContainer.classList.add('show');
-            const firstQ = createQuestionElement(questions[0], 0);
-            container.appendChild(firstQ);
-            setTimeout(() => firstQ.classList.add('show'), 50);
-            firstQ.querySelector('input,select').focus();
-            updateProgressBar();
-            setTimeout(() => playAudio(audioFiles.welcome), 1000);
+            
+            // If user has completed all questions, show results directly
+            if (lastAnsweredIndex >= questions.length - 1 && answers.length >= questions.length) {
+              showResult();
+            } else {
+              // Show all answered questions and the next unanswered one
+              for (let i = 0; i <= lastAnsweredIndex; i++) {
+                if (answers[i]) {
+                  const q = createQuestionElement(questions[i], i);
+                  q.querySelector('input,select').value = answers[i];
+                  q.querySelector('input,select').disabled = true; // Disable answered questions
+                  container.appendChild(q);
+                  setTimeout(() => q.classList.add('show'), 50 * (i + 1));
+                }
+              }
+              // Show the next unanswered question
+              if (lastAnsweredIndex < questions.length - 1) {
+                const nextIndex = lastAnsweredIndex + 1;
+                const nextQ = createQuestionElement(questions[nextIndex], nextIndex);
+                container.appendChild(nextQ);
+                setTimeout(() => nextQ.classList.add('show'), 50 * (lastAnsweredIndex + 2));
+                nextQ.querySelector('input,select').focus();
+              }
+              updateProgressBar();
+              setTimeout(() => playAudio(audioFiles.welcome), 1000);
+            }
           }, { once: true });
         }, 2000);
       });
@@ -640,6 +682,7 @@
         if (idx >= lastAnsweredIndex) {
           lastAnsweredIndex = idx;
           updateProgressBar();
+          saveProgress(); // Save progress after each answer
           nextQuestion(idx);
         }
       }
@@ -657,6 +700,7 @@
       if (idx >= lastAnsweredIndex) {
         lastAnsweredIndex = idx;
         updateProgressBar();
+        saveProgress(); // Save progress after each answer
         nextQuestion(idx);
       }
     }
@@ -673,6 +717,7 @@
       if (idx >= lastAnsweredIndex) {
         lastAnsweredIndex = idx;
         updateProgressBar();
+        saveProgress(); // Save progress after each answer
         nextQuestion(idx);
       }
     }
@@ -690,6 +735,7 @@
         if (idx >= lastAnsweredIndex) {
           lastAnsweredIndex = idx;
           updateProgressBar();
+          saveProgress(); // Save progress after each answer
           nextQuestion(idx);
         }
       }
