@@ -1,114 +1,65 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>تشيك بوكس مع حفظ دائم (IndexedDB)</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Checkboxes + Cookies</title>
   <style>
-    body {font-family: Tahoma, Arial, sans-serif; padding: 24px; background: #f6f8fb; color: #111}
-    .card {background: white; padding: 18px; border-radius: 10px; box-shadow: 0 6px 18px rgba(20,20,40,0.06); max-width:480px; margin:auto}
-    label {display:block; margin:12px 0; font-size:18px}
-    .controls {display:flex; gap:8px; margin-top:12px}
-    button {padding:8px 12px; border-radius:8px; border:1px solid #ccc; background:#fff; cursor:pointer}
-    small {color:#666}
+    body {font-family:Tahoma,Arial,sans-serif;padding:20px;background:#f6f8fb}
+    .card {max-width:480px;margin:30px auto;background:#fff;padding:18px;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.06)}
+    label{display:block;margin:12px 0;font-size:18px}
+    button{padding:8px 12px;border-radius:8px;border:1px solid #ccc;background:#fff;cursor:pointer;margin-right:6px}
   </style>
 </head>
 <body>
-  <div class="card">
-    <h2>تجربة: حفظ الحالة باستخدام IndexedDB</h2>
-    <label><input id="chk1" type="checkbox"> تفعيل الخيار الأول</label>
-    <label><input id="chk2" type="checkbox"> تفعيل الخيار الثاني</label>
+<div class="card">
+  <h2>Checkboxes + Cookies</h2>
+  <label><input type="checkbox" id="chk1"> الخيار الأول</label>
+  <label><input type="checkbox" id="chk2"> الخيار الثاني</label>
+  <button id="clear">مسح الحفظ</button>
+</div>
 
-    <div class="controls">
-      <button id="clear">مسح الحفظ</button>
-      <button id="export">عرض البيانات</button>
-    </div>
-    <p><small>هذه النسخة تحفظ الحالة باستخدام <code>IndexedDB</code> لتبقى محفوظة حتى بعد إغلاق المتصفح تمامًا.</small></p>
-    <pre id="debug" style="display:none; background:#eef; padding:8px; border-radius:6px;"></pre>
-  </div>
+<script>
+  const chk1 = document.getElementById('chk1');
+  const chk2 = document.getElementById('chk2');
+  const clearBtn = document.getElementById('clear');
 
-  <script>
-    const DB_NAME = 'checkboxesDB';
-    const STORE_NAME = 'states';
-    let db;
+  // دالة لحفظ قيمة الكوكيز
+  function setCookie(name, value, days = 365){
+    const d = new Date();
+    d.setTime(d.getTime() + (days*24*60*60*1000));
+    document.cookie = name + "=" + value + ";expires=" + d.toUTCString() + ";path=/";
+  }
 
-    // فتح قاعدة البيانات أو إنشاؤها
-    function openDB() {
-      return new Promise((resolve, reject) => {
-        const request = indexedDB.open(DB_NAME, 1);
-        request.onupgradeneeded = e => {
-          db = e.target.result;
-          if (!db.objectStoreNames.contains(STORE_NAME)) {
-            db.createObjectStore(STORE_NAME, { keyPath: 'id' });
-          }
-        };
-        request.onsuccess = e => {
-          db = e.target.result;
-          resolve();
-        };
-        request.onerror = e => reject(e);
-      });
+  // دالة قراءة الكوكيز
+  function getCookie(name){
+    const c = document.cookie.split('; ');
+    for(let i=0;i<c.length;i++){
+      const [key, val] = c[i].split('=');
+      if(key===name) return val;
     }
+    return null;
+  }
 
-    // حفظ الحالة في IndexedDB
-    function saveState() {
-      const tx = db.transaction(STORE_NAME, 'readwrite');
-      const store = tx.objectStore(STORE_NAME);
-      const data = {
-        id: 'checkboxes',
-        chk1: document.getElementById('chk1').checked,
-        chk2: document.getElementById('chk2').checked
-      };
-      store.put(data);
-    }
+  // حفظ عند تغيير التشيك بوكس
+  chk1.addEventListener('change', ()=>setCookie('chk1', chk1.checked));
+  chk2.addEventListener('change', ()=>setCookie('chk2', chk2.checked));
 
-    // استرجاع الحالة
-    function restoreState() {
-      const tx = db.transaction(STORE_NAME, 'readonly');
-      const store = tx.objectStore(STORE_NAME);
-      const req = store.get('checkboxes');
-      req.onsuccess = e => {
-        const data = e.target.result;
-        if (data) {
-          document.getElementById('chk1').checked = !!data.chk1;
-          document.getElementById('chk2').checked = !!data.chk2;
-        }
-      };
-    }
+  // استرجاع القيم عند تحميل الصفحة
+  window.addEventListener('DOMContentLoaded', ()=>{
+    const v1 = getCookie('chk1');
+    const v2 = getCookie('chk2');
+    if(v1 !== null) chk1.checked = (v1 === 'true');
+    if(v2 !== null) chk2.checked = (v2 === 'true');
+  });
 
-    // مسح البيانات
-    function clearState() {
-      const tx = db.transaction(STORE_NAME, 'readwrite');
-      const store = tx.objectStore(STORE_NAME);
-      store.delete('checkboxes');
-      document.getElementById('chk1').checked = false;
-      document.getElementById('chk2').checked = false;
-    }
-
-    document.addEventListener('DOMContentLoaded', async () => {
-      await openDB();
-      restoreState();
-
-      const chk1 = document.getElementById('chk1');
-      const chk2 = document.getElementById('chk2');
-      const clearBtn = document.getElementById('clear');
-      const exportBtn = document.getElementById('export');
-      const debug = document.getElementById('debug');
-
-      chk1.addEventListener('change', saveState);
-      chk2.addEventListener('change', saveState);
-
-      clearBtn.addEventListener('click', clearState);
-      exportBtn.addEventListener('click', async () => {
-        const tx = db.transaction(STORE_NAME, 'readonly');
-        const store = tx.objectStore(STORE_NAME);
-        const req = store.get('checkboxes');
-        req.onsuccess = e => {
-          debug.style.display = 'block';
-          debug.textContent = JSON.stringify(e.target.result || {}, null, 2);
-        };
-      });
-    });
-  </script>
+  // مسح القيم
+  clearBtn.addEventListener('click', ()=>{
+    setCookie('chk1', false);
+    setCookie('chk2', false);
+    chk1.checked = false;
+    chk2.checked = false;
+  });
+</script>
 </body>
 </html>
