@@ -319,7 +319,7 @@
       box-shadow: 0 0 8px rgba(0, 255, 255, 0.7);
     }
 
-    .download-btn {
+    .download-btn, .reset-btn {
       margin-top: 20px;
       align-self: center;
       background: linear-gradient(135deg, #00ccff, #9d4edd);
@@ -339,19 +339,29 @@
       overflow: hidden;
     }
 
-    .download-btn:hover {
+    .reset-btn {
+      background: linear-gradient(135deg, #ff4d4d, #b31212);
+      margin-left: 10px;
+    }
+
+    .download-btn:hover, .reset-btn:hover {
       background: linear-gradient(135deg, #00ffcc, #d946ef);
       transform: translateY(-5px) scale(1.08);
       box-shadow: 0 8px 20px rgba(0, 255, 255, 0.7);
     }
 
-    .download-btn.busy {
+    .reset-btn:hover {
+      background: linear-gradient(135deg, #ff6666, #cc3333);
+      box-shadow: 0 8px 20px rgba(255, 77, 77, 0.7);
+    }
+
+    .download-btn.busy, .reset-btn.busy {
       opacity: 0.7;
       transform: scale(0.95);
       pointer-events: none;
     }
 
-    .download-btn::before {
+    .download-btn::before, .reset-btn::before {
       content: '';
       position: absolute;
       top: 50%;
@@ -364,11 +374,11 @@
       border-radius: 50%;
     }
 
-    .download-btn:hover::before {
+    .download-btn:hover::before, .reset-btn:hover::before {
       transform: translate(-50%, -50%) scale(2.5);
     }
 
-    .download-btn i {
+    .download-btn i, .reset-btn i {
       font-size: 1.5rem;
       transform: translateY(1px);
     }
@@ -381,28 +391,6 @@
       color: #00ffff;
       opacity: 0.95;
       text-shadow: 0 0 5px rgba(0, 255, 255, 0.4);
-    }
-
-    .reset-btn {
-      margin-top: 20px;
-      align-self: center;
-      background: linear-gradient(135deg, #ff4d4d, #b31212);
-      border: none;
-      border-radius: 25px;
-      padding: 10px 20px;
-      font-size: 1rem;
-      font-weight: 900;
-      font-family: 'Almarai', "Noto Naskh Arabic", Arial, sans-serif;
-      color: #fff;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 6px 15px rgba(255, 77, 77, 0.5);
-    }
-
-    .reset-btn:hover {
-      background: linear-gradient(135deg, #ff6666, #cc3333);
-      transform: translateY(-5px) scale(1.05);
-      box-shadow: 0 8px 20px rgba(255, 77, 77, 0.7);
     }
 
     @media (max-width: 480px) {
@@ -432,12 +420,12 @@
         font-size: 0.95rem; 
         padding: 10px 8px; 
       }
-      .download-btn { 
+      .download-btn, .reset-btn { 
         width: 48px;
         height: 48px; 
         font-size: 20px; 
       }
-      .download-btn i {
+      .download-btn i, .reset-btn i {
         font-size: 1.2rem;
       }
       .question-label { font-size: 1.05rem; }
@@ -446,7 +434,6 @@
       #scheduleCard .schedule-line input[type="checkbox"] { width: 18px; height: 18px; }
       #splashCard { width: 80vw; height: 80vw; max-width: 300px; max-height: 300px; }
       #startButton { padding: 10px 20px; font-size: 1rem; }
-      .reset-btn { padding: 8px 16px; font-size: 0.9rem; }
     }
   </style>
 </head>
@@ -468,6 +455,19 @@
 
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js" crossorigin="anonymous"></script>
   <script>
+    // Check localStorage support
+    function checkLocalStorage() {
+      try {
+        const testKey = '__test__';
+        localStorage.setItem(testKey, testKey);
+        localStorage.removeItem(testKey);
+        return true;
+      } catch (e) {
+        alert("⚠️ التخزين المحلي غير مدعوم في هذا المتصفح. قد لا يتم حفظ تقدمك. يرجى تعطيل الوضع الخاص أو استخدام متصفح آخر.");
+        return false;
+      }
+    }
+
     // Function to convert 24-hour time to 12-hour format with AM/PM
     function to12HourFormat(timeStr) {
       if (!timeStr || !/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(timeStr)) return timeStr;
@@ -510,81 +510,93 @@
     }
 
     function getStorageKey() {
-      return 'hydration_checkboxes';
+      const now = new Date();
+      return `hydration_checkboxes_${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
     }
 
     function saveCheckboxStates(checkboxStates) {
-      try {
-        localStorage.setItem(getStorageKey(), JSON.stringify(checkboxStates));
-        console.log('Checkbox states saved:', checkboxStates);
-      } catch (err) {
-        console.error('Error saving checkbox states:', err);
+      if (checkLocalStorage()) {
+        try {
+          localStorage.setItem(getStorageKey(), JSON.stringify(checkboxStates));
+          console.log('Checkbox states saved:', checkboxStates);
+        } catch (err) {
+          console.error('Error saving checkbox states:', err);
+        }
       }
     }
 
     function loadCheckboxStates() {
-      try {
-        const data = localStorage.getItem(getStorageKey());
-        const states = data ? JSON.parse(data) : {};
-        console.log('Checkbox states loaded:', states);
-        return states;
-      } catch (err) {
-        console.error('Error loading checkbox states:', err);
-        return {};
+      if (checkLocalStorage()) {
+        try {
+          const data = localStorage.getItem(getStorageKey());
+          const states = data ? JSON.parse(data) : {};
+          console.log('Checkbox states loaded:', states);
+          return states;
+        } catch (err) {
+          console.error('Error loading checkbox states:', err);
+          return {};
+        }
       }
+      return {};
     }
 
     function saveProgress() {
-      try {
-        const progress = { answers, lastAnsweredIndex };
-        localStorage.setItem('hydration_progress', JSON.stringify(progress));
-        console.log('Progress saved:', progress);
-      } catch (err) {
-        console.error('Error saving progress:', err);
+      if (checkLocalStorage()) {
+        try {
+          const progress = { answers, lastAnsweredIndex };
+          localStorage.setItem('hydration_progress', JSON.stringify(progress));
+          console.log('Progress saved:', progress);
+        } catch (err) {
+          console.error('Error saving progress:', err);
+        }
       }
     }
 
     function loadProgress() {
-      try {
-        const data = localStorage.getItem('hydration_progress');
-        if (!data) {
-          console.log('No progress found in localStorage');
-          return false;
-        }
-        const progress = JSON.parse(data);
-        console.log('Progress loaded:', progress);
+      if (checkLocalStorage()) {
+        try {
+          const data = localStorage.getItem('hydration_progress');
+          if (!data) {
+            console.log('No progress found in localStorage');
+            return false;
+          }
+          const progress = JSON.parse(data);
+          console.log('Progress loaded:', progress);
 
-        if (!Array.isArray(progress.answers) || !Number.isInteger(progress.lastAnsweredIndex)) {
-          console.log('Invalid progress data, resetting');
+          if (!Array.isArray(progress.answers) || !Number.isInteger(progress.lastAnsweredIndex)) {
+            console.log('Invalid progress data, resetting');
+            localStorage.removeItem('hydration_progress');
+            return false;
+          }
+
+          answers = progress.answers;
+          lastAnsweredIndex = progress.lastAnsweredIndex;
+
+          for (let i = 0; i < answers.length; i++) {
+            if (answers[i] && !validateInput(answers[i], questions[i])) {
+              console.log(`Invalid answer at index ${i}:`, answers[i]);
+              answers[i] = undefined;
+            }
+          }
+
+          console.log('Validated answers:', answers, 'lastAnsweredIndex:', lastAnsweredIndex);
+          return true;
+        } catch (err) {
+          console.error('Error loading progress:', err);
+          answers = [];
+          lastAnsweredIndex = -1;
           localStorage.removeItem('hydration_progress');
           return false;
         }
-
-        answers = progress.answers;
-        lastAnsweredIndex = progress.lastAnsweredIndex;
-
-        for (let i = 0; i < answers.length; i++) {
-          if (answers[i] && !validateInput(answers[i], questions[i])) {
-            console.log(`Invalid answer at index ${i}:`, answers[i]);
-            answers[i] = undefined;
-            lastAnsweredIndex = Math.min(lastAnsweredIndex, i - 1);
-          }
-        }
-
-        console.log('Validated answers:', answers, 'lastAnsweredIndex:', lastAnsweredIndex);
-        return true;
-      } catch (err) {
-        console.error('Error loading progress:', err);
-        answers = [];
-        lastAnsweredIndex = -1;
-        localStorage.removeItem('hydration_progress');
-        return false;
       }
+      return false;
     }
 
     function resetProgress() {
-      localStorage.removeItem('hydration_progress');
-      localStorage.removeItem(getStorageKey());
+      if (checkLocalStorage()) {
+        localStorage.removeItem('hydration_progress');
+        localStorage.removeItem(getStorageKey());
+      }
       answers = [];
       lastAnsweredIndex = -1;
       container.innerHTML = '<div class="progress-bar-container" id="progressBarContainer"><div class="progress-bar" id="progressBar"></div></div>';
@@ -641,7 +653,6 @@
       div.appendChild(label);
 
       let input;
-      const isMobile = window.innerWidth <= 480;
       if (obj.type === "select") {
         input = document.createElement('select');
         const placeholder = document.createElement('option');
@@ -657,18 +668,41 @@
           option.textContent = opt;
           input.appendChild(option);
         });
-        input.addEventListener('change', handleInput);
       } else {
         input = document.createElement('input');
         input.type = obj.type === "time" ? "time" : obj.type;
         input.placeholder = obj.placeholder || obj.text;
-        input.addEventListener('change', handleInput);
-        if (!isMobile && obj.type !== "time") input.addEventListener('keypress', handleInput);
         if (obj.default !== undefined && !answers[index]) input.value = obj.default;
       }
 
       input.required = true;
       input.setAttribute('data-index', index);
+
+      input.addEventListener('input', (e) => {
+        const val = e.target.value.trim();
+        if (validateInput(val, obj)) {
+          answers[index] = val;
+          if (index >= lastAnsweredIndex) lastAnsweredIndex = index;
+          saveProgress();
+          updateProgressBar();
+        }
+      });
+
+      input.addEventListener('change', (e) => {
+        const val = e.target.value.trim();
+        if (validateInput(val, obj)) {
+          answers[index] = val;
+          if (index >= lastAnsweredIndex) lastAnsweredIndex = index;
+          saveProgress();
+          updateProgressBar();
+          e.target.disabled = true;
+          nextQuestion(index);
+        } else {
+          alert("⚠️ إدخال غير صالح. يرجى إدخال قيمة صحيحة.");
+          e.target.focus();
+        }
+      });
+
       input.addEventListener('focus', (e) => {
         setTimeout(() => {
           const rect = e.target.getBoundingClientRect();
@@ -676,28 +710,10 @@
           window.scrollTo({ top: offset, behavior: 'smooth' });
         }, 300);
       });
+
       wrapper.appendChild(input);
       div.appendChild(wrapper);
       return div;
-    }
-
-    function handleInput(e) {
-      if (e.type === 'keypress' && e.key !== 'Enter') return;
-      const idx = parseInt(e.target.getAttribute('data-index'));
-      const q = questions[idx];
-      const val = e.target.value.trim();
-      if (!validateInput(val, q)) {
-        alert("⚠️ إدخال غير صالح. يرجى إدخال قيمة صحيحة.");
-        e.target.focus();
-        return;
-      }
-      answers[idx] = val;
-      lastAnsweredIndex = Math.max(lastAnsweredIndex, idx);
-      updateProgressBar();
-      saveProgress();
-      e.target.disabled = true;
-      console.log('Input handled, answer saved:', { index: idx, value: val });
-      nextQuestion(idx);
     }
 
     function nextQuestion(idx) {
@@ -855,7 +871,6 @@
       div.innerHTML = `<strong>💧 الترطيب اليومي المقدر:</strong> ${base} لتر/يوم`;
       container.appendChild(div);
       setTimeout(() => div.classList.add('show'), 50);
-      div.scrollIntoView({ behavior: 'smooth', block: 'end' });
 
       const total_ml = base * 1000;
       const schedule = generateWaterDistribution(total_ml, user);
@@ -1031,7 +1046,8 @@
 
       const resetBtn = document.createElement("button");
       resetBtn.classList.add("reset-btn");
-      resetBtn.textContent = "إعادة تعيين";
+      resetBtn.setAttribute("title", "إعادة تعيين التقدم");
+      resetBtn.innerHTML = '<i class="fas fa-sync-alt"></i>';
       resetBtn.addEventListener("click", () => {
         if (confirm("هل أنت متأكد؟ سيتم مسح كل التقدم والإجابات.")) {
           resetProgress();
@@ -1051,13 +1067,17 @@
     }
 
     window.addEventListener('load', () => {
+      // Check localStorage support
+      checkLocalStorage();
+
       const splash = document.getElementById('splash');
       const splashCard = document.getElementById('splashCard');
       const startButton = document.getElementById('startButton');
       const mainContainer = document.querySelector('.container');
 
-      const hasProgress = loadProgress();
-      console.log('Initial state - hasProgress:', hasProgress, 'answers:', answers, 'lastAnsweredIndex:', lastAnsweredIndex);
+      // Load saved progress
+      loadProgress();
+      console.log('Initial state - answers:', answers, 'lastAnsweredIndex:', lastAnsweredIndex);
 
       setTimeout(() => {
         splashCard.classList.add('show');
@@ -1071,25 +1091,27 @@
             splash.remove();
             mainContainer.classList.add('show');
 
-            container.innerHTML = '<div class="progress-bar-container" id="progressBarContainer"><div class="progress-bar" id="progressBar"></div></div>';
-
             if (isQuestionnaireComplete()) {
               console.log('Questionnaire complete, showing results');
+              container.innerHTML = '<div class="progress-bar-container hidden" id="progressBarContainer"><div class="progress-bar" id="progressBar"></div></div>';
               showResult();
             } else {
               console.log('Resuming questionnaire at index:', lastAnsweredIndex + 1);
-              for (let i = 0; i <= lastAnsweredIndex + 1 && i < questions.length; i++) {
-                const q = createQuestionElement(questions[i], i);
-                const input = q.querySelector('input,select');
+              container.innerHTML = '<div class="progress-bar-container" id="progressBarContainer"><div class="progress-bar" id="progressBar"></div></div>';
+              for (let i = 0; i < questions.length; i++) {
                 if (i <= lastAnsweredIndex && answers[i]) {
+                  const q = createQuestionElement(questions[i], i);
+                  const input = q.querySelector('input,select');
                   input.value = answers[i];
                   input.disabled = true;
-                }
-                container.appendChild(q);
-                setTimeout(() => q.classList.add('show'), 50 * (i + 1));
-                if (i === lastAnsweredIndex + 1) {
-                  input.focus();
-                  setTimeout(() => q.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+                  container.appendChild(q);
+                  setTimeout(() => q.classList.add('show'), 50 * (i + 1));
+                } else if (i === lastAnsweredIndex + 1) {
+                  const nextQ = createQuestionElement(questions[i], i);
+                  container.appendChild(nextQ);
+                  setTimeout(() => nextQ.classList.add('show'), 50 * (i + 1));
+                  nextQ.querySelector('input,select').focus();
+                  break;
                 }
               }
               updateProgressBar();
@@ -1098,17 +1120,16 @@
           }, { once: true });
         }, 2000);
       });
-    });
 
-    window.addEventListener('beforeunload', () => {
-      saveProgress();
-      const checkboxStates = loadCheckboxStates();
-      const checkboxes = document.querySelectorAll('#scheduleCard input[type="checkbox"]');
-      checkboxes.forEach((checkbox, index) => {
-        checkboxStates[`checkbox_${index}`] = checkbox.checked;
+      // Save progress on pagehide and visibilitychange for mobile compatibility
+      window.addEventListener('beforeunload', saveProgress);
+      window.addEventListener('pagehide', saveProgress);
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden') saveProgress();
       });
-      saveCheckboxStates(checkboxStates);
-      console.log('Saved state before unload');
+
+      // Periodic save to ensure progress is not lost
+      setInterval(saveProgress, 1000);
     });
   </script>
 </body>
