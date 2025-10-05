@@ -517,6 +517,7 @@
     function saveCheckboxStates(checkboxStates) {
       try {
         localStorage.setItem(getStorageKey(), JSON.stringify(checkboxStates));
+        console.log('Checkbox states saved:', checkboxStates);
       } catch (err) {
         console.error('Error saving checkbox states:', err);
       }
@@ -525,7 +526,9 @@
     function loadCheckboxStates() {
       try {
         const data = localStorage.getItem(getStorageKey());
-        return data ? JSON.parse(data) : {};
+        const states = data ? JSON.parse(data) : {};
+        console.log('Checkbox states loaded:', states);
+        return states;
       } catch (err) {
         console.error('Error loading checkbox states:', err);
         return {};
@@ -535,8 +538,8 @@
     function saveProgress() {
       try {
         const progress = { answers, lastAnsweredIndex, date: new Date().toISOString().split('T')[0] };
-        console.log('Saving progress:', progress);
         localStorage.setItem('hydration_progress', JSON.stringify(progress));
+        console.log('Progress saved:', progress);
       } catch (err) {
         console.error('Error saving progress:', err);
       }
@@ -550,9 +553,8 @@
           return false;
         }
         const progress = JSON.parse(data);
-        console.log('Loaded progress:', progress);
+        console.log('Progress loaded:', progress);
 
-        // Check if progress is from today
         const today = new Date().toISOString().split('T')[0];
         if (progress.date !== today) {
           console.log('Progress is outdated, resetting');
@@ -560,19 +562,29 @@
           return false;
         }
 
-        answers = Array.isArray(progress.answers) ? progress.answers : [];
-        lastAnsweredIndex = Number.isInteger(progress.lastAnsweredIndex) ? progress.lastAnsweredIndex : -1;
+        if (!Array.isArray(progress.answers) || !Number.isInteger(progress.lastAnsweredIndex)) {
+          console.log('Invalid progress data, resetting');
+          localStorage.removeItem('hydration_progress');
+          return false;
+        }
+
+        answers = progress.answers;
+        lastAnsweredIndex = progress.lastAnsweredIndex;
 
         for (let i = 0; i < answers.length; i++) {
           if (answers[i] && !validateInput(answers[i], questions[i])) {
+            console.log(`Invalid answer at index ${i}:`, answers[i]);
             answers[i] = undefined;
           }
         }
+
+        console.log('Validated answers:', answers, 'lastAnsweredIndex:', lastAnsweredIndex);
         return true;
       } catch (err) {
         console.error('Error loading progress:', err);
         answers = [];
         lastAnsweredIndex = -1;
+        localStorage.removeItem('hydration_progress');
         return false;
       }
     }
@@ -588,11 +600,14 @@
       container.appendChild(firstQ);
       setTimeout(() => firstQ.classList.add('show'), 50);
       firstQ.querySelector('input,select').focus();
+      console.log('Progress reset, starting questionnaire');
       playAudio(audioFiles.welcome);
     }
 
     function isQuestionnaireComplete() {
-      return answers.length === questions.length && answers.every((answer, index) => answer && validateInput(answer, questions[index]));
+      const complete = answers.length === questions.length && answers.every((answer, index) => answer && validateInput(answer, questions[index]));
+      console.log('Questionnaire complete check:', complete, 'Answers:', answers);
+      return complete;
     }
 
     function validateInput(value, obj) {
@@ -612,11 +627,13 @@
       const progressBar = document.getElementById('progressBar');
       const progress = ((lastAnsweredIndex + 1) / questions.length) * 100;
       progressBar.style.width = `${progress}%`;
+      console.log('Progress bar updated:', progress);
     }
 
     function hideProgressBar() {
       const progressBarContainer = document.getElementById('progressBarContainer');
       progressBarContainer.classList.add('hidden');
+      console.log('Progress bar hidden');
     }
 
     function createQuestionElement(obj, index) {
@@ -647,17 +664,13 @@
           option.textContent = opt;
           input.appendChild(option);
         });
-        input.addEventListener('change', handleSelect);
+        input.addEventListener('change', handleInput);
       } else {
         input = document.createElement('input');
         input.type = obj.type === "time" ? "time" : obj.type;
         input.placeholder = obj.placeholder || obj.text;
-        if (obj.type === "time") {
-          input.addEventListener('change', handleTimeChange);
-          if (!isMobile) input.addEventListener('keypress', handleTimeEnter);
-        } else {
-          input.addEventListener('keypress', handleEnter);
-        }
+        input.addEventListener('change', handleInput);
+        if (!isMobile && obj.type !== "time") input.addEventListener('keypress', handleInput);
         if (obj.default !== undefined && !answers[index]) input.value = obj.default;
       }
 
@@ -675,46 +688,13 @@
       return div;
     }
 
-    function handleEnter(e) {
-      if (e.key === 'Enter') {
-        const idx = parseInt(e.target.getAttribute('data-index'));
-        const q = questions[idx];
-        const val = e.target.value.trim();
-        if (!validateInput(val, q)) {
-          alert("⚠️ إدخال غير صالح. يرجى إدخال قيمة صحيحة.");
-          e.target.focus();
-          return;
-        }
-        answers[idx] = val;
-        lastAnsweredIndex = Math.max(lastAnsweredIndex, idx);
-        updateProgressBar();
-        saveProgress();
-        e.target.disabled = true;
-        nextQuestion(idx);
-      }
-    }
-
-    function handleSelect(e) {
+    function handleInput(e) {
+      if (e.type === 'keypress' && e.key !== 'Enter') return;
       const idx = parseInt(e.target.getAttribute('data-index'));
-      const val = e.target.value;
-      if (!validateInput(val, questions[idx])) {
-        alert("⚠️ إدخال غير صالح. يرجى اختيار قيمة.");
-        e.target.focus();
-        return;
-      }
-      answers[idx] = val;
-      lastAnsweredIndex = Math.max(lastAnsweredIndex, idx);
-      updateProgressBar();
-      saveProgress();
-      e.target.disabled = true;
-      nextQuestion(idx);
-    }
-
-    function handleTimeChange(e) {
-      const idx = parseInt(e.target.getAttribute('data-index'));
+      const q = questions[idx];
       const val = e.target.value.trim();
-      if (!validateInput(val, questions[idx])) {
-        alert("⚠️ إدخال غير صالح. يرجى إدخال وقت صحيح.");
+      if (!validateInput(val, q)) {
+        alert("⚠️ إدخال غير صالح. يرجى إدخال قيمة صحيحة.");
         e.target.focus();
         return;
       }
@@ -723,25 +703,8 @@
       updateProgressBar();
       saveProgress();
       e.target.disabled = true;
+      console.log('Input handled, answer saved:', { index: idx, value: val });
       nextQuestion(idx);
-    }
-
-    function handleTimeEnter(e) {
-      if (e.key === 'Enter') {
-        const idx = parseInt(e.target.getAttribute('data-index'));
-        const val = e.target.value.trim();
-        if (!validateInput(val, questions[idx])) {
-          alert("⚠️ إدخال غير صالح. يرجى إدخال وقت صحيح.");
-          e.target.focus();
-          return;
-        }
-        answers[idx] = val;
-        lastAnsweredIndex = Math.max(lastAnsweredIndex, idx);
-        updateProgressBar();
-        saveProgress();
-        e.target.disabled = true;
-        nextQuestion(idx);
-      }
     }
 
     function nextQuestion(idx) {
@@ -755,6 +718,7 @@
         setTimeout(() => {
           nextElem.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }, 100);
+        console.log('Next question displayed:', nextIndex);
       } else {
         playAudio(audioFiles.processing);
         setTimeout(showResult, 2000);
@@ -921,6 +885,7 @@
           const updatedStates = loadCheckboxStates();
           updatedStates[`checkbox_${index}`] = checkbox.checked;
           saveCheckboxStates(updatedStates);
+          console.log('Checkbox changed:', { index, checked: checkbox.checked });
         });
         line.innerHTML = `<span>${time}</span><span>${ml} mL</span>`;
         line.appendChild(checkbox);
@@ -940,6 +905,8 @@
           const clone = scheduleDiv.cloneNode(true);
           const btnInClone = clone.querySelector('.download-btn');
           if (btnInClone) btnInClone.remove();
+          const resetBtnInClone = clone.querySelector('.reset-btn');
+          if (resetBtnInClone) resetBtnInClone.remove();
 
           const checkboxes = clone.querySelectorAll('input[type="checkbox"]');
           checkboxes.forEach(checkbox => checkbox.remove());
@@ -1087,6 +1054,7 @@
         setTimeout(() => playAudio(audioFiles.program), 1000);
       }, 50);
       scheduleDiv.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      console.log('Results displayed with schedule');
     }
 
     window.addEventListener('load', () => {
@@ -1095,8 +1063,8 @@
       const startButton = document.getElementById('startButton');
       const mainContainer = document.querySelector('.container');
 
-      loadProgress();
-      console.log('Initial state - answers:', answers, 'lastAnsweredIndex:', lastAnsweredIndex);
+      const hasProgress = loadProgress();
+      console.log('Initial state - hasProgress:', hasProgress, 'answers:', answers, 'lastAnsweredIndex:', lastAnsweredIndex);
 
       setTimeout(() => {
         splashCard.classList.add('show');
@@ -1132,9 +1100,6 @@
                   nextQ.querySelector('input,select').focus();
                   break;
                 }
-              }
-              if (lastAnsweredIndex >= questions.length - 1 && answers.length === questions.length) {
-                showResult();
               }
               updateProgressBar();
               setTimeout(() => playAudio(audioFiles.welcome), 1000);
