@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Hydration Pro Clinical — Smart Web</title>
-  <!-- إضافة مكتبة Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Almarai:wght@700;900&display=swap');
@@ -384,6 +383,28 @@
       text-shadow: 0 0 5px rgba(0, 255, 255, 0.4);
     }
 
+    .reset-btn {
+      margin-top: 20px;
+      align-self: center;
+      background: linear-gradient(135deg, #ff4d4d, #b31212);
+      border: none;
+      border-radius: 25px;
+      padding: 10px 20px;
+      font-size: 1rem;
+      font-weight: 900;
+      font-family: 'Almarai', "Noto Naskh Arabic", Arial, sans-serif;
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 15px rgba(255, 77, 77, 0.5);
+    }
+
+    .reset-btn:hover {
+      background: linear-gradient(135deg, #ff6666, #cc3333);
+      transform: translateY(-5px) scale(1.05);
+      box-shadow: 0 8px 20px rgba(255, 77, 77, 0.7);
+    }
+
     @media (max-width: 480px) {
       body {
         align-items: center;
@@ -425,6 +446,7 @@
       #scheduleCard .schedule-line input[type="checkbox"] { width: 18px; height: 18px; }
       #splashCard { width: 80vw; height: 80vw; max-width: 300px; max-height: 300px; }
       #startButton { padding: 10px 20px; font-size: 1rem; }
+      .reset-btn { padding: 8px 16px; font-size: 0.9rem; }
     }
   </style>
 </head>
@@ -451,17 +473,8 @@
       if (!timeStr || !/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(timeStr)) return timeStr;
       let [hours, minutes] = timeStr.split(':').map(Number);
       const period = hours >= 12 ? 'PM' : 'AM';
-      hours = hours % 12 || 12; // Convert 0 to 12 for midnight
+      hours = hours % 12 || 12;
       return `${hours}:${minutes.toString().padStart(2, '0')} ${period}`;
-    }
-
-    // Function to convert 12-hour time back to 24-hour format (if needed for input validation)
-    function to24HourFormat(timeStr, period) {
-      if (!timeStr || !/^[0-9]{1,2}:[0-5][0-9]$/.test(timeStr)) return timeStr;
-      let [hours, minutes] = timeStr.split(':').map(Number);
-      if (period === 'PM' && hours !== 12) hours += 12;
-      if (period === 'AM' && hours === 12) hours = 0;
-      return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
     }
 
     const questions = [
@@ -483,7 +496,6 @@
     let answers = [];
     let lastAnsweredIndex = -1;
 
-    // Audio files
     const audioFiles = {
       splash: new Audio('welcome.mp3'),
       welcome: new Audio('intro.mp3'),
@@ -497,120 +509,115 @@
       audio.play().catch(err => console.error('Audio play error:', err));
     }
 
-    // Function to generate a unique key for localStorage based on schedule date
     function getStorageKey() {
       const now = new Date();
-      const dateStr = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
-      return `hydration_checkboxes_${dateStr}`;
+      return `hydration_checkboxes_${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
     }
 
-    // Function to save checkbox states to localStorage
     function saveCheckboxStates(checkboxStates) {
-      localStorage.setItem(getStorageKey(), JSON.stringify(checkboxStates));
-    }
-
-    // Function to load checkbox states from localStorage
-    function loadCheckboxStates() {
-      const data = localStorage.getItem(getStorageKey());
-      return data ? JSON.parse(data) : {};
-    }
-
-    // Function to save user progress (answers and lastAnsweredIndex)
-    function saveProgress() {
-      const progress = {
-        answers: answers,
-        lastAnsweredIndex: lastAnsweredIndex
-      };
-      console.log('Saving progress:', progress);
-      localStorage.setItem('hydration_progress', JSON.stringify(progress));
-    }
-
-    // Function to load user progress
-    function loadProgress() {
-      const data = localStorage.getItem('hydration_progress');
-      if (data) {
-        try {
-          const progress = JSON.parse(data);
-          console.log('Loaded progress:', progress);
-          answers = Array.isArray(progress.answers) ? progress.answers : [];
-          lastAnsweredIndex = Number.isInteger(progress.lastAnsweredIndex) ? progress.lastAnsweredIndex : -1;
-          // Validate loaded answers
-          for (let i = 0; i < answers.length; i++) {
-            if (answers[i] && !validateInput(answers[i], questions[i])) {
-              answers[i] = undefined; // Clear invalid answers
-            }
-          }
-        } catch (err) {
-          console.error('Error loading progress:', err);
-          answers = [];
-          lastAnsweredIndex = -1;
-        }
-      } else {
-        console.log('No progress found in localStorage');
+      try {
+        localStorage.setItem(getStorageKey(), JSON.stringify(checkboxStates));
+      } catch (err) {
+        console.error('Error saving checkbox states:', err);
       }
     }
 
-    // Function to validate that all questions are answered
-    function isQuestionnaireComplete() {
-      return answers.length >= questions.length && answers.every((answer, index) => answer && validateInput(answer, questions[index]));
+    function loadCheckboxStates() {
+      try {
+        const data = localStorage.getItem(getStorageKey());
+        return data ? JSON.parse(data) : {};
+      } catch (err) {
+        console.error('Error loading checkbox states:', err);
+        return {};
+      }
     }
 
-    window.addEventListener('load', () => {
-      const splash = document.getElementById('splash');
-      const splashCard = document.getElementById('splashCard');
-      const startButton = document.getElementById('startButton');
-      const mainContainer = document.querySelector('.container');
+    function saveProgress() {
+      try {
+        const progress = { answers, lastAnsweredIndex, date: new Date().toISOString().split('T')[0] };
+        console.log('Saving progress:', progress);
+        localStorage.setItem('hydration_progress', JSON.stringify(progress));
+      } catch (err) {
+        console.error('Error saving progress:', err);
+      }
+    }
 
-      // Load saved progress
-      loadProgress();
-      console.log('Initial state - answers:', answers, 'lastAnsweredIndex:', lastAnsweredIndex);
+    function loadProgress() {
+      try {
+        const data = localStorage.getItem('hydration_progress');
+        if (!data) {
+          console.log('No progress found in localStorage');
+          return false;
+        }
+        const progress = JSON.parse(data);
+        console.log('Loaded progress:', progress);
 
-      setTimeout(() => {
-        splashCard.classList.add('show');
-      }, 100);
+        // Check if progress is from today
+        const today = new Date().toISOString().split('T')[0];
+        if (progress.date !== today) {
+          console.log('Progress is outdated, resetting');
+          localStorage.removeItem('hydration_progress');
+          return false;
+        }
 
-      startButton.addEventListener('click', () => {
-        playAudio(audioFiles.splash);
-        setTimeout(() => {
-          splash.classList.add('hide');
-          splash.addEventListener('transitionend', () => {
-            splash.remove();
-            mainContainer.classList.add('show');
+        answers = Array.isArray(progress.answers) ? progress.answers : [];
+        lastAnsweredIndex = Number.isInteger(progress.lastAnsweredIndex) ? progress.lastAnsweredIndex : -1;
 
-            if (isQuestionnaireComplete()) {
-              console.log('Questionnaire complete, showing results');
-              showResult();
-            } else {
-              console.log('Resuming questionnaire at index:', lastAnsweredIndex + 1);
-              // Show all answered questions
-              for (let i = 0; i <= lastAnsweredIndex; i++) {
-                if (answers[i]) {
-                  const q = createQuestionElement(questions[i], i);
-                  const input = q.querySelector('input,select');
-                  input.value = answers[i];
-                  input.disabled = true; // Disable answered questions
-                  container.appendChild(q);
-                  setTimeout(() => q.classList.add('show'), 50 * (i + 1));
-                }
-              }
-              // Show the next unanswered question
-              if (lastAnsweredIndex < questions.length - 1) {
-                const nextIndex = lastAnsweredIndex + 1;
-                const nextQ = createQuestionElement(questions[nextIndex], nextIndex);
-                container.appendChild(nextQ);
-                setTimeout(() => nextQ.classList.add('show'), 50 * (lastAnsweredIndex + 2));
-                nextQ.querySelector('input,select').focus();
-              } else if (lastAnsweredIndex === questions.length - 1) {
-                // If all questions are answered but not validated as complete, go to results
-                showResult();
-              }
-              updateProgressBar();
-              setTimeout(() => playAudio(audioFiles.welcome), 1000);
-            }
-          }, { once: true });
-        }, 2000);
-      });
-    });
+        for (let i = 0; i < answers.length; i++) {
+          if (answers[i] && !validateInput(answers[i], questions[i])) {
+            answers[i] = undefined;
+          }
+        }
+        return true;
+      } catch (err) {
+        console.error('Error loading progress:', err);
+        answers = [];
+        lastAnsweredIndex = -1;
+        return false;
+      }
+    }
+
+    function resetProgress() {
+      localStorage.removeItem('hydration_progress');
+      localStorage.removeItem(getStorageKey());
+      answers = [];
+      lastAnsweredIndex = -1;
+      container.innerHTML = '<div class="progress-bar-container" id="progressBarContainer"><div class="progress-bar" id="progressBar"></div></div>';
+      updateProgressBar();
+      const firstQ = createQuestionElement(questions[0], 0);
+      container.appendChild(firstQ);
+      setTimeout(() => firstQ.classList.add('show'), 50);
+      firstQ.querySelector('input,select').focus();
+      playAudio(audioFiles.welcome);
+    }
+
+    function isQuestionnaireComplete() {
+      return answers.length === questions.length && answers.every((answer, index) => answer && validateInput(answer, questions[index]));
+    }
+
+    function validateInput(value, obj) {
+      if (!value) return false;
+      if (obj.type === "number") {
+        const num = parseFloat(value);
+        if (isNaN(num)) return false;
+        if (obj.min !== undefined && num < obj.min) return false;
+        if (obj.max !== undefined && num > obj.max) return false;
+      }
+      if (obj.type === "select") return obj.options.includes(value);
+      if (obj.type === "time") return /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(value.trim());
+      return true;
+    }
+
+    function updateProgressBar() {
+      const progressBar = document.getElementById('progressBar');
+      const progress = ((lastAnsweredIndex + 1) / questions.length) * 100;
+      progressBar.style.width = `${progress}%`;
+    }
+
+    function hideProgressBar() {
+      const progressBarContainer = document.getElementById('progressBarContainer');
+      progressBarContainer.classList.add('hidden');
+    }
 
     function createQuestionElement(obj, index) {
       const div = document.createElement('div');
@@ -646,15 +653,12 @@
         input.type = obj.type === "time" ? "time" : obj.type;
         input.placeholder = obj.placeholder || obj.text;
         if (obj.type === "time") {
-          if (!isMobile) {
-            input.addEventListener('keypress', handleTimeEnter);
-          } else {
-            input.addEventListener('change', handleTimeChange);
-          }
+          input.addEventListener('change', handleTimeChange);
+          if (!isMobile) input.addEventListener('keypress', handleTimeEnter);
         } else {
           input.addEventListener('keypress', handleEnter);
         }
-        if (obj.default !== undefined) input.value = obj.default;
+        if (obj.default !== undefined && !answers[index]) input.value = obj.default;
       }
 
       input.required = true;
@@ -671,47 +675,22 @@
       return div;
     }
 
-    function validateInput(value, obj) {
-      if (!value) return false;
-      if (obj.type === "number") {
-        const num = parseFloat(value);
-        if (isNaN(num)) return false;
-        if (obj.min !== undefined && num < obj.min) return false;
-        if (obj.max !== undefined && num > obj.max) return false;
-      }
-      if (obj.type === "select") return obj.options.includes(value);
-      if (obj.type === "time") return /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(value.trim());
-      return true;
-    }
-
-    function updateProgressBar() {
-      const progressBar = document.getElementById('progressBar');
-      const progress = ((lastAnsweredIndex + 1) / questions.length) * 100;
-      progressBar.style.width = `${progress}%`;
-    }
-
-    function hideProgressBar() {
-      const progressBarContainer = document.getElementById('progressBarContainer');
-      progressBarContainer.classList.add('hidden');
-    }
-
     function handleEnter(e) {
       if (e.key === 'Enter') {
         const idx = parseInt(e.target.getAttribute('data-index'));
         const q = questions[idx];
-        const val = e.target.value;
+        const val = e.target.value.trim();
         if (!validateInput(val, q)) {
           alert("⚠️ إدخال غير صالح. يرجى إدخال قيمة صحيحة.");
           e.target.focus();
           return;
         }
         answers[idx] = val;
-        if (idx >= lastAnsweredIndex) {
-          lastAnsweredIndex = idx;
-          updateProgressBar();
-          saveProgress();
-          nextQuestion(idx);
-        }
+        lastAnsweredIndex = Math.max(lastAnsweredIndex, idx);
+        updateProgressBar();
+        saveProgress();
+        e.target.disabled = true;
+        nextQuestion(idx);
       }
     }
 
@@ -724,47 +703,44 @@
         return;
       }
       answers[idx] = val;
-      if (idx >= lastAnsweredIndex) {
-        lastAnsweredIndex = idx;
-        updateProgressBar();
-        saveProgress();
-        nextQuestion(idx);
-      }
+      lastAnsweredIndex = Math.max(lastAnsweredIndex, idx);
+      updateProgressBar();
+      saveProgress();
+      e.target.disabled = true;
+      nextQuestion(idx);
     }
 
     function handleTimeChange(e) {
       const idx = parseInt(e.target.getAttribute('data-index'));
-      const val = e.target.value;
+      const val = e.target.value.trim();
       if (!validateInput(val, questions[idx])) {
         alert("⚠️ إدخال غير صالح. يرجى إدخال وقت صحيح.");
         e.target.focus();
         return;
       }
       answers[idx] = val;
-      if (idx >= lastAnsweredIndex) {
-        lastAnsweredIndex = idx;
-        updateProgressBar();
-        saveProgress();
-        nextQuestion(idx);
-      }
+      lastAnsweredIndex = Math.max(lastAnsweredIndex, idx);
+      updateProgressBar();
+      saveProgress();
+      e.target.disabled = true;
+      nextQuestion(idx);
     }
 
     function handleTimeEnter(e) {
       if (e.key === 'Enter') {
         const idx = parseInt(e.target.getAttribute('data-index'));
-        const val = e.target.value;
+        const val = e.target.value.trim();
         if (!validateInput(val, questions[idx])) {
           alert("⚠️ إدخال غير صالح. يرجى إدخال وقت صحيح.");
           e.target.focus();
           return;
         }
         answers[idx] = val;
-        if (idx >= lastAnsweredIndex) {
-          lastAnsweredIndex = idx;
-          updateProgressBar();
-          saveProgress();
-          nextQuestion(idx);
-        }
+        lastAnsweredIndex = Math.max(lastAnsweredIndex, idx);
+        updateProgressBar();
+        saveProgress();
+        e.target.disabled = true;
+        nextQuestion(idx);
       }
     }
 
@@ -774,7 +750,8 @@
         const nextElem = createQuestionElement(questions[nextIndex], nextIndex);
         container.appendChild(nextElem);
         setTimeout(() => nextElem.classList.add('show'), 50);
-        nextElem.querySelector('input,select').focus();
+        const input = nextElem.querySelector('input,select');
+        input.focus();
         setTimeout(() => {
           nextElem.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }, 100);
@@ -811,18 +788,15 @@
       const exercise_duration = parseFloat(user[3]) || 45;
       const temperature = parseFloat(user[4]) || 25;
 
-      // Calculate mid-morning time as average between breakfast and lunch
       const breakfast_minutes = timeToMinutes(breakfast_time);
       const lunch_minutes = timeToMinutes(lunch_time);
       let mid_morning_minutes = (breakfast_minutes + lunch_minutes) / 2;
-      if (lunch_minutes < breakfast_minutes) mid_morning_minutes += 720; // Handle overnight cases
+      if (lunch_minutes < breakfast_minutes) mid_morning_minutes += 720;
       const mid_morning_time = addMinutes("00:00", Math.round(mid_morning_minutes));
 
-      // Calculate awake duration (in hours)
       let awake_duration = (timeToMinutes(sleep_time) - timeToMinutes(wake_time)) / 60;
       if (awake_duration < 0) awake_duration += 24;
 
-      // Base percentages
       let base_percentages = {
         "استيقاظ": 0.12,
         "إفطار": 0.08,
@@ -835,7 +809,6 @@
         "قبل النوم": 0.08
       };
 
-      // Adjust percentages based on conditions
       if (exercise_intensity === "عالية" || exercise_duration > 60) {
         base_percentages["قبل التمرين"] += 0.02;
         base_percentages["أثناء التمرين"] += 0.03;
@@ -862,22 +835,19 @@
         base_percentages["عشاء"] += 0.01;
       }
 
-      // Apply random variation (±2%)
       const varied_percentages = {};
       let total_percentage = 0;
       Object.keys(base_percentages).forEach(key => {
-        const variation = (Math.random() * 0.04 - 0.02); // Random between -2% and +2%
+        const variation = (Math.random() * 0.04 - 0.02);
         varied_percentages[key] = Math.max(0.05, base_percentages[key] + variation);
         total_percentage += varied_percentages[key];
       });
 
-      // Normalize percentages to sum to 100%
       const normalization_factor = 1 / total_percentage;
       Object.keys(varied_percentages).forEach(key => {
         varied_percentages[key] *= normalization_factor;
       });
 
-      // Define time points
       const time_points = {
         "استيقاظ": wake_time,
         "إفطار": breakfast_time,
@@ -890,7 +860,6 @@
         "قبل النوم": addMinutes(sleep_time, -30)
       };
 
-      // Calculate water amounts
       const schedule = [];
       Object.keys(varied_percentages).forEach(key => {
         let ml = Math.round(total_ml * varied_percentages[key]);
@@ -898,7 +867,6 @@
         schedule.push([key, ml, to12HourFormat(time_points[key])]);
       });
 
-      // Ensure total matches total_ml
       let current_total = schedule.reduce((sum, [, ml]) => sum + ml, 0);
       if (current_total !== total_ml) {
         const diff = total_ml - current_total;
@@ -914,16 +882,15 @@
       let user = {};
       questions.forEach((q, i) => { user[i] = answers[i]; });
 
-      // Calculate daily water intake
-      let base = parseFloat(user[0]) * 0.035; // 35 ml/kg as base
-      if (user[1] === "عالي") base *= 1.20; // +20% for high activity
-      else if (user[1] === "متوسط") base *= 1.10; // +10% for medium activity
-      if (user[2] === "عالية") base += 0.5 * (parseFloat(user[3]) / 60); // +0.5 L/hour for high intensity
-      else if (user[2] === "متوسطة") base += 0.3 * (parseFloat(user[3]) / 60); // +0.3 L/hour for medium intensity
-      else if (user[2] === "منخفضة") base += 0.1 * (parseFloat(user[3]) / 60); // +0.1 L/hour for low intensity
-      if (parseFloat(user[4]) > 40) base += 0.5; // +0.5 L for very high temperature
-      else if (parseFloat(user[4]) > 30) base += 0.3; // +0.3 L for high temperature
-      base = Math.max(1.5, Math.min(base, 5.0)); // Limit between 1.5 and 5 liters
+      let base = parseFloat(user[0]) * 0.035;
+      if (user[1] === "عالي") base *= 1.20;
+      else if (user[1] === "متوسط") base *= 1.10;
+      if (user[2] === "عالية") base += 0.5 * (parseFloat(user[3]) / 60);
+      else if (user[2] === "متوسطة") base += 0.3 * (parseFloat(user[3]) / 60);
+      else if (user[2] === "منخفضة") base += 0.1 * (parseFloat(user[3]) / 60);
+      if (parseFloat(user[4]) > 40) base += 0.5;
+      else if (parseFloat(user[4]) > 30) base += 0.3;
+      base = Math.max(1.5, Math.min(base, 5.0));
       base = Math.round(base * 100) / 100;
 
       const div = document.createElement('div');
@@ -933,7 +900,6 @@
       setTimeout(() => div.classList.add('show'), 50);
       div.scrollIntoView({ behavior: 'smooth', block: 'end' });
 
-      // Generate water distribution
       const total_ml = base * 1000;
       const schedule = generateWaterDistribution(total_ml, user);
 
@@ -942,7 +908,6 @@
       scheduleDiv.id = "scheduleCard";
       scheduleDiv.innerHTML = "<strong>جدول الترطيب اليومي</strong><br><br>";
 
-      // Load saved checkbox states
       const checkboxStates = loadCheckboxStates();
 
       schedule.forEach(([name, ml, time], index) => {
@@ -976,7 +941,6 @@
           const btnInClone = clone.querySelector('.download-btn');
           if (btnInClone) btnInClone.remove();
 
-          // Remove checkboxes from the clone for the screenshot
           const checkboxes = clone.querySelectorAll('input[type="checkbox"]');
           checkboxes.forEach(checkbox => checkbox.remove());
 
@@ -1048,16 +1012,13 @@
               span.style.overflow = 'visible';
               span.style.unicodeBidi = 'embed';
               span.style.textAlign = 'center';
-              span.style.width = '50%'; // Adjust width to account for removed checkbox
+              span.style.width = '50%';
               span.style.opacity = '0.95';
               span.style.textShadow = '0 0 5px rgba(0, 255, 255, 0.3)';
             });
           });
 
           document.body.appendChild(clone);
-          clone.offsetHeight;
-          await document.fonts.load(`900 ${fontSize}px Almarai`);
-          await document.fonts.load(`900 ${fontSize}px "Noto Naskh Arabic"`);
           await document.fonts.ready;
           await new Promise(resolve => setTimeout(resolve, 300));
 
@@ -1101,14 +1062,24 @@
           }, 'image/png', 1.0);
 
         } catch (err) {
-          console.error(err);
+          console.error('Download error:', err);
           alert("حدث خطأ أثناء إنشاء الصورة. حاول مرة أخرى.");
           btn.classList.remove("busy");
           btn.innerHTML = '<i class="fas fa-chevron-down"></i>';
         }
       });
 
+      const resetBtn = document.createElement("button");
+      resetBtn.classList.add("reset-btn");
+      resetBtn.textContent = "إعادة تعيين";
+      resetBtn.addEventListener("click", () => {
+        if (confirm("هل أنت متأكد؟ سيتم مسح كل التقدم والإجابات.")) {
+          resetProgress();
+        }
+      });
+
       scheduleDiv.appendChild(btn);
+      scheduleDiv.appendChild(resetBtn);
       container.appendChild(scheduleDiv);
       setTimeout(() => {
         scheduleDiv.classList.add('show');
@@ -1117,6 +1088,61 @@
       }, 50);
       scheduleDiv.scrollIntoView({ behavior: 'smooth', block: 'end' });
     }
+
+    window.addEventListener('load', () => {
+      const splash = document.getElementById('splash');
+      const splashCard = document.getElementById('splashCard');
+      const startButton = document.getElementById('startButton');
+      const mainContainer = document.querySelector('.container');
+
+      loadProgress();
+      console.log('Initial state - answers:', answers, 'lastAnsweredIndex:', lastAnsweredIndex);
+
+      setTimeout(() => {
+        splashCard.classList.add('show');
+      }, 100);
+
+      startButton.addEventListener('click', () => {
+        playAudio(audioFiles.splash);
+        setTimeout(() => {
+          splash.classList.add('hide');
+          splash.addEventListener('transitionend', () => {
+            splash.remove();
+            mainContainer.classList.add('show');
+
+            container.innerHTML = '<div class="progress-bar-container" id="progressBarContainer"><div class="progress-bar" id="progressBar"></div></div>';
+
+            if (isQuestionnaireComplete()) {
+              console.log('Questionnaire complete, showing results');
+              showResult();
+            } else {
+              console.log('Resuming questionnaire at index:', lastAnsweredIndex + 1);
+              for (let i = 0; i < questions.length; i++) {
+                if (i <= lastAnsweredIndex && answers[i]) {
+                  const q = createQuestionElement(questions[i], i);
+                  const input = q.querySelector('input,select');
+                  input.value = answers[i];
+                  input.disabled = true;
+                  container.appendChild(q);
+                  setTimeout(() => q.classList.add('show'), 50 * (i + 1));
+                } else if (i === lastAnsweredIndex + 1) {
+                  const nextQ = createQuestionElement(questions[i], i);
+                  container.appendChild(nextQ);
+                  setTimeout(() => nextQ.classList.add('show'), 50 * (i + 1));
+                  nextQ.querySelector('input,select').focus();
+                  break;
+                }
+              }
+              if (lastAnsweredIndex >= questions.length - 1 && answers.length === questions.length) {
+                showResult();
+              }
+              updateProgressBar();
+              setTimeout(() => playAudio(audioFiles.welcome), 1000);
+            }
+          }, { once: true });
+        }, 2000);
+      });
+    });
   </script>
 </body>
 </html>
