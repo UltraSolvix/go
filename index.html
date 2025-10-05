@@ -271,7 +271,8 @@
 
     #scheduleCard .schedule-line {
       display: flex;
-      justify-content: space-between;
+      flex-direction: column;
+      justify-content: center;
       align-items: center;
       width: 100%;
       max-width: 420px;
@@ -287,8 +288,15 @@
       transform: scale(1.03);
     }
 
-    #scheduleCard .schedule-line span {
-      width: 33.33%;
+    #scheduleCard .schedule-line .time-ml {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      margin-bottom: 8px;
+    }
+
+    #scheduleCard .schedule-line .time-ml span {
+      width: 50%;
       text-align: center;
       font-size: 1.05rem;
       font-weight: 900;
@@ -299,20 +307,34 @@
     .schedule-line input[type="checkbox"] {
       width: 20px;
       height: 20px;
-      accent-color: #00ffff;
-      cursor: pointer;
-      outline: none;
-      vertical-align: middle;
-      margin: 0 auto;
-      background: rgba(0, 0, 0, 0.3);
+      background: transparent;
       border: 2px solid #00ffff;
       border-radius: 4px;
+      cursor: pointer;
+      outline: none;
+      margin: 0 auto;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
       transition: all 0.3s ease;
     }
 
     .schedule-line input[type="checkbox"]:checked {
       background: #00ffff;
       border-color: #00ccff;
+      position: relative;
+    }
+
+    .schedule-line input[type="checkbox"]:checked::before {
+      content: '\f00c';
+      font-family: 'Font Awesome 6 Free';
+      font-weight: 900;
+      color: #000;
+      font-size: 14px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
     }
 
     .schedule-line input[type="checkbox"]:hover {
@@ -442,11 +464,28 @@
       }
       .question-label { font-size: 1.05rem; }
       #scheduleCard { font-size: 0.9rem; min-width: 220px; width: 95%; }
-      #scheduleCard .schedule-line span { font-size: 0.95rem; width: 33.33%; }
-      #scheduleCard .schedule-line input[type="checkbox"] { width: 18px; height: 18px; }
-      #splashCard { width: 80vw; height: 80vw; max-width: 300px; max-height: 300px; }
-      #startButton { padding: 10px 20px; font-size: 1rem; }
-      .reset-btn { padding: 8px 16px; font-size: 0.9rem; }
+      #scheduleCard .schedule-line .time-ml span { 
+        font-size: 0.95rem; 
+        width: 50%; 
+      }
+      #scheduleCard .schedule-line input[type="checkbox"] { 
+        width: 18px; 
+        height: 18px; 
+      }
+      #splashCard { 
+        width: 80vw; 
+        height: 80vw; 
+        max-width: 300px; 
+        max-height: 300px; 
+      }
+      #startButton { 
+        padding: 10px 20px; 
+        font-size: 1rem; 
+      }
+      .reset-btn { 
+        padding: 8px 16px; 
+        font-size: 0.9rem; 
+      }
     }
   </style>
 </head>
@@ -468,6 +507,20 @@
 
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js" crossorigin="anonymous"></script>
   <script>
+    // Check if localStorage is available
+    function isLocalStorageAvailable() {
+      try {
+        const test = '__test__';
+        localStorage.setItem(test, test);
+        localStorage.removeItem(test);
+        return true;
+      } catch (e) {
+        console.error('localStorage is not available:', e);
+        alert('⚠️ التخزين المحلي غير متاح. قد تكون في وضع التصفح الخفي. يرجى استخدام وضع التصفح العادي لحفظ التقدم.');
+        return false;
+      }
+    }
+
     // Function to convert 24-hour time to 12-hour format with AM/PM
     function to12HourFormat(timeStr) {
       if (!timeStr || !/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(timeStr)) return timeStr;
@@ -514,6 +567,7 @@
     }
 
     function saveCheckboxStates(checkboxStates) {
+      if (!isLocalStorageAvailable()) return;
       try {
         localStorage.setItem(getStorageKey(), JSON.stringify(checkboxStates));
         console.log('Checkbox states saved:', checkboxStates);
@@ -523,6 +577,7 @@
     }
 
     function loadCheckboxStates() {
+      if (!isLocalStorageAvailable()) return {};
       try {
         const data = localStorage.getItem(getStorageKey());
         const states = data ? JSON.parse(data) : {};
@@ -535,6 +590,7 @@
     }
 
     function saveProgress() {
+      if (!isLocalStorageAvailable()) return;
       try {
         const progress = { answers, lastAnsweredIndex };
         localStorage.setItem('hydration_progress', JSON.stringify(progress));
@@ -545,6 +601,7 @@
     }
 
     function loadProgress() {
+      if (!isLocalStorageAvailable()) return false;
       try {
         const data = localStorage.getItem('hydration_progress');
         if (!data) {
@@ -583,6 +640,7 @@
     }
 
     function resetProgress() {
+      if (!isLocalStorageAvailable()) return;
       localStorage.removeItem('hydration_progress');
       localStorage.removeItem(getStorageKey());
       answers = [];
@@ -870,6 +928,9 @@
       schedule.forEach(([name, ml, time], index) => {
         const line = document.createElement('div');
         line.classList.add('schedule-line');
+        const timeMlDiv = document.createElement('div');
+        timeMlDiv.classList.add('time-ml');
+        timeMlDiv.innerHTML = `<span>${time}</span><span>${ml} mL</span>`;
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.setAttribute('data-key', `checkbox_${index}`);
@@ -880,7 +941,7 @@
           saveCheckboxStates(updatedStates);
           console.log('Checkbox changed:', { index, checked: checkbox.checked });
         });
-        line.innerHTML = `<span>${time}</span><span>${ml} mL</span>`;
+        line.appendChild(timeMlDiv);
         line.appendChild(checkbox);
         scheduleDiv.appendChild(line);
       });
@@ -954,7 +1015,8 @@
           const lines = clone.querySelectorAll('.schedule-line');
           lines.forEach(line => {
             line.style.display = 'flex';
-            line.style.justifyContent = 'space-between';
+            line.style.flexDirection = 'column';
+            line.style.justifyContent = 'center';
             line.style.alignItems = 'center';
             line.style.width = '100%';
             line.style.maxWidth = '420px';
@@ -962,7 +1024,14 @@
             line.style.margin = `${lineMargin}px auto`;
             line.style.background = 'linear-gradient(135deg, rgba(0, 255, 255, 0.25), rgba(106, 17, 203, 0.25))';
             line.style.boxShadow = '0 2px 10px rgba(0, 255, 255, 0.3)';
-            const spans = line.querySelectorAll('span');
+            const timeMlDiv = line.querySelector('.time-ml');
+            if (timeMlDiv) {
+              timeMlDiv.style.display = 'flex';
+              timeMlDiv.style.justifyContent = 'space-between';
+              timeMlDiv.style.width = '100%';
+              timeMlDiv.style.marginBottom = '8px';
+            }
+            const spans = line.querySelectorAll('.time-ml span');
             spans.forEach(span => {
               span.style.display = 'inline-block';
               span.style.fontSize = `${fontSize}px`;
@@ -1051,6 +1120,10 @@
     }
 
     window.addEventListener('load', () => {
+      if (!isLocalStorageAvailable()) {
+        console.log('localStorage unavailable, proceeding without saving');
+      }
+
       const splash = document.getElementById('splash');
       const splashCard = document.getElementById('splashCard');
       const startButton = document.getElementById('startButton');
@@ -1074,7 +1147,7 @@
             container.innerHTML = '<div class="progress-bar-container" id="progressBarContainer"><div class="progress-bar" id="progressBar"></div></div>';
 
             if (isQuestionnaireComplete()) {
-              console.log('Questionnaire complete, showing results');
+              console.log('Questionnaire complete, showing results immediately');
               showResult();
             } else {
               console.log('Resuming questionnaire at index:', lastAnsweredIndex + 1);
@@ -1100,7 +1173,22 @@
       });
     });
 
-    window.addEventListener('beforeunload', () => {
+    // Save progress and checkbox states on input changes
+    window.addEventListener('input', (e) => {
+      if (!isLocalStorageAvailable()) return;
+      saveProgress();
+      if (e.target.type === 'checkbox') {
+        const checkboxStates = loadCheckboxStates();
+        const index = e.target.getAttribute('data-key').split('_')[1];
+        checkboxStates[`checkbox_${index}`] = e.target.checked;
+        saveCheckboxStates(checkboxStates);
+        console.log('Checkbox state saved on input:', { index, checked: e.target.checked });
+      }
+    });
+
+    // Save progress and checkbox states before page unload with warning
+    window.addEventListener('beforeunload', (e) => {
+      if (!isLocalStorageAvailable()) return;
       saveProgress();
       const checkboxStates = loadCheckboxStates();
       const checkboxes = document.querySelectorAll('#scheduleCard input[type="checkbox"]');
@@ -1108,7 +1196,37 @@
         checkboxStates[`checkbox_${index}`] = checkbox.checked;
       });
       saveCheckboxStates(checkboxStates);
-      console.log('Saved state before unload');
+      console.log('State saved before unload');
+      // Show warning message
+      e.preventDefault();
+      e.returnValue = 'نتأسف، خروجك من الموقع يؤدي إلى محو بياناتك وستضطر للبدء من جديد.';
+      return e.returnValue;
+    });
+
+    // Additional save events for mobile compatibility
+    window.addEventListener('pagehide', () => {
+      if (!isLocalStorageAvailable()) return;
+      saveProgress();
+      const checkboxStates = loadCheckboxStates();
+      const checkboxes = document.querySelectorAll('#scheduleCard input[type="checkbox"]');
+      checkboxes.forEach((checkbox, index) => {
+        checkboxStates[`checkbox_${index}`] = checkbox.checked;
+      });
+      saveCheckboxStates(checkboxStates);
+      console.log('State saved on pagehide');
+    });
+
+    window.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden' && isLocalStorageAvailable()) {
+        saveProgress();
+        const checkboxStates = loadCheckboxStates();
+        const checkboxes = document.querySelectorAll('#scheduleCard input[type="checkbox"]');
+        checkboxes.forEach((checkbox, index) => {
+          checkboxStates[`checkbox_${index}`] = checkbox.checked;
+        });
+        saveCheckboxStates(checkboxStates);
+        console.log('State saved on visibilitychange');
+      }
     });
   </script>
 </body>
