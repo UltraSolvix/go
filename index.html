@@ -182,6 +182,9 @@
     .input-container {
       position: relative;
       width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     .input-container input,
@@ -224,6 +227,41 @@
       color: #00ffff;
       font-family: 'Almarai', sans-serif;
       font-weight: 700;
+    }
+
+    .confirm-btn {
+      margin-top: 10px;
+      background: linear-gradient(135deg, #00ccff, #9d4edd);
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      font-size: 1.2rem;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 15px rgba(0, 255, 255, 0.5);
+    }
+
+    .confirm-btn:hover {
+      background: linear-gradient(135deg, #00ffcc, #d946ef);
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 8px 20px rgba(0, 255, 255, 0.7);
+    }
+
+    .confirm-btn:disabled {
+      background: linear-gradient(135deg, #666, #999);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+      opacity: 0.6;
+    }
+
+    .confirm-btn i {
+      font-size: 1.2rem;
     }
 
     .result-card, .schedule-card {
@@ -272,7 +310,6 @@
     #scheduleCard .schedule-line {
       display: flex;
       flex-direction: column;
-      justify-content: center;
       align-items: center;
       width: 100%;
       max-width: 420px;
@@ -288,14 +325,14 @@
       transform: scale(1.03);
     }
 
-    #scheduleCard .schedule-line .time-ml {
+    #scheduleCard .schedule-line .time-ml-container {
       display: flex;
       justify-content: space-between;
       width: 100%;
       margin-bottom: 8px;
     }
 
-    #scheduleCard .schedule-line .time-ml span {
+    #scheduleCard .schedule-line span {
       width: 50%;
       text-align: center;
       font-size: 1.05rem;
@@ -312,24 +349,25 @@
       border-radius: 4px;
       cursor: pointer;
       outline: none;
-      margin: 0 auto;
+      appearance: none;
       -webkit-appearance: none;
       -moz-appearance: none;
-      appearance: none;
       transition: all 0.3s ease;
+      position: relative;
+      display: block;
+      margin: 0 auto;
     }
 
     .schedule-line input[type="checkbox"]:checked {
-      background: #00ffff;
+      background: transparent;
       border-color: #00ccff;
-      position: relative;
     }
 
     .schedule-line input[type="checkbox"]:checked::before {
       content: '\f00c';
       font-family: 'Font Awesome 6 Free';
       font-weight: 900;
-      color: #000;
+      color: #00ffff;
       font-size: 14px;
       position: absolute;
       top: 50%;
@@ -454,6 +492,14 @@
         font-size: 0.95rem; 
         padding: 10px 8px; 
       }
+      .confirm-btn { 
+        width: 36px;
+        height: 36px;
+        font-size: 1rem; 
+      }
+      .confirm-btn i {
+        font-size: 1rem;
+      }
       .download-btn { 
         width: 48px;
         height: 48px; 
@@ -464,28 +510,11 @@
       }
       .question-label { font-size: 1.05rem; }
       #scheduleCard { font-size: 0.9rem; min-width: 220px; width: 95%; }
-      #scheduleCard .schedule-line .time-ml span { 
-        font-size: 0.95rem; 
-        width: 50%; 
-      }
-      #scheduleCard .schedule-line input[type="checkbox"] { 
-        width: 18px; 
-        height: 18px; 
-      }
-      #splashCard { 
-        width: 80vw; 
-        height: 80vw; 
-        max-width: 300px; 
-        max-height: 300px; 
-      }
-      #startButton { 
-        padding: 10px 20px; 
-        font-size: 1rem; 
-      }
-      .reset-btn { 
-        padding: 8px 16px; 
-        font-size: 0.9rem; 
-      }
+      #scheduleCard .schedule-line .time-ml-container span { font-size: 0.95rem; width: 50%; }
+      #scheduleCard .schedule-line input[type="checkbox"] { width: 18px; height: 18px; }
+      #splashCard { width: 80vw; height: 80vw; max-width: 300px; max-height: 300px; }
+      #startButton { padding: 10px 20px; font-size: 1rem; }
+      .reset-btn { padding: 8px 16px; font-size: 0.9rem; }
     }
   </style>
 </head>
@@ -662,7 +691,7 @@
     }
 
     function validateInput(value, obj) {
-      if (!value && value !== "0") return false; // التحقق من القيم الفارغة، لكن يقبل "0"
+      if (!value) return false;
       if (obj.type === "number") {
         const num = parseFloat(value);
         if (isNaN(num)) return false;
@@ -671,9 +700,7 @@
         return true;
       }
       if (obj.type === "select") return obj.options.includes(value);
-      if (obj.type === "time") {
-        return /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(value.trim());
-      }
+      if (obj.type === "time") return /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(value.trim());
       return true;
     }
 
@@ -718,18 +745,20 @@
           option.textContent = opt;
           input.appendChild(option);
         });
-        input.addEventListener('change', handleInput);
       } else {
         input = document.createElement('input');
         input.type = obj.type === "time" ? "time" : obj.type;
         input.placeholder = obj.placeholder || obj.text;
-        input.addEventListener('change', handleInput);
-        if (!isMobile && obj.type !== "time") input.addEventListener('keypress', handleInput);
         if (obj.default !== undefined && !answers[index]) input.value = obj.default;
       }
 
       input.required = true;
       input.setAttribute('data-index', index);
+      input.addEventListener('input', () => {
+        const confirmBtn = wrapper.querySelector('.confirm-btn');
+        confirmBtn.disabled = !validateInput(input.value.trim(), obj);
+      });
+
       input.addEventListener('focus', (e) => {
         setTimeout(() => {
           const rect = e.target.getBoundingClientRect();
@@ -737,36 +766,32 @@
           window.scrollTo({ top: offset, behavior: 'smooth' });
         }, 300);
       });
+
+      const confirmBtn = document.createElement('button');
+      confirmBtn.classList.add('confirm-btn');
+      confirmBtn.innerHTML = '<i class="fas fa-check"></i>';
+      confirmBtn.disabled = !input.value || !validateInput(input.value.trim(), obj);
+      confirmBtn.addEventListener('click', () => {
+        const val = input.value.trim();
+        if (!validateInput(val, obj)) {
+          alert("⚠️ إدخال غير صالح. يرجى إدخال قيمة صحيحة.");
+          input.focus();
+          return;
+        }
+        answers[index] = val;
+        lastAnsweredIndex = Math.max(lastAnsweredIndex, index);
+        updateProgressBar();
+        saveProgress();
+        input.disabled = true;
+        confirmBtn.disabled = true;
+        console.log('Input confirmed, answer saved:', { index, value: val });
+        nextQuestion(index);
+      });
+
       wrapper.appendChild(input);
+      wrapper.appendChild(confirmBtn);
       div.appendChild(wrapper);
       return div;
-    }
-
-    function handleInput(e) {
-      if (e.type === 'keypress' && e.key !== 'Enter') return;
-      const idx = parseInt(e.target.getAttribute('data-index'));
-      const q = questions[idx];
-      const val = e.target.value.trim();
-
-      if (!val && q.required) {
-        alert("⚠️ هذا الحقل مطلوب. يرجى إدخال قيمة.");
-        e.target.focus();
-        return;
-      }
-
-      if (!validateInput(val, q)) {
-        alert("⚠️ إدخال غير صالح. يرجى إدخال قيمة صحيحة.");
-        e.target.focus();
-        return;
-      }
-
-      answers[idx] = val;
-      lastAnsweredIndex = Math.max(lastAnsweredIndex, idx);
-      updateProgressBar();
-      saveProgress();
-      e.target.disabled = true;
-      console.log('Input handled, answer saved:', { index: idx, value: val });
-      nextQuestion(idx);
     }
 
     function nextQuestion(idx) {
@@ -939,9 +964,9 @@
       schedule.forEach(([name, ml, time], index) => {
         const line = document.createElement('div');
         line.classList.add('schedule-line');
-        const timeMlDiv = document.createElement('div');
-        timeMlDiv.classList.add('time-ml');
-        timeMlDiv.innerHTML = `<span>${time}</span><span>${ml} mL</span>`;
+        const timeMlContainer = document.createElement('div');
+        timeMlContainer.classList.add('time-ml-container');
+        timeMlContainer.innerHTML = `<span>${time}</span><span>${ml} mL</span>`;
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.setAttribute('data-key', `checkbox_${index}`);
@@ -952,7 +977,7 @@
           saveCheckboxStates(updatedStates);
           console.log('Checkbox changed:', { index, checked: checkbox.checked });
         });
-        line.appendChild(timeMlDiv);
+        line.appendChild(timeMlContainer);
         line.appendChild(checkbox);
         scheduleDiv.appendChild(line);
       });
@@ -1027,7 +1052,6 @@
           lines.forEach(line => {
             line.style.display = 'flex';
             line.style.flexDirection = 'column';
-            line.style.justifyContent = 'center';
             line.style.alignItems = 'center';
             line.style.width = '100%';
             line.style.maxWidth = '420px';
@@ -1035,14 +1059,14 @@
             line.style.margin = `${lineMargin}px auto`;
             line.style.background = 'linear-gradient(135deg, rgba(0, 255, 255, 0.25), rgba(106, 17, 203, 0.25))';
             line.style.boxShadow = '0 2px 10px rgba(0, 255, 255, 0.3)';
-            const timeMlDiv = line.querySelector('.time-ml');
-            if (timeMlDiv) {
-              timeMlDiv.style.display = 'flex';
-              timeMlDiv.style.justifyContent = 'space-between';
-              timeMlDiv.style.width = '100%';
-              timeMlDiv.style.marginBottom = '8px';
+            const timeMlContainer = line.querySelector('.time-ml-container');
+            if (timeMlContainer) {
+              timeMlContainer.style.display = 'flex';
+              timeMlContainer.style.justifyContent = 'space-between';
+              timeMlContainer.style.width = '100%';
+              timeMlContainer.style.marginBottom = '8px';
             }
-            const spans = line.querySelectorAll('.time-ml span');
+            const spans = line.querySelectorAll('span');
             spans.forEach(span => {
               span.style.display = 'inline-block';
               span.style.fontSize = `${fontSize}px`;
@@ -1165,9 +1189,11 @@
               for (let i = 0; i <= lastAnsweredIndex + 1 && i < questions.length; i++) {
                 const q = createQuestionElement(questions[i], i);
                 const input = q.querySelector('input,select');
+                const confirmBtn = q.querySelector('.confirm-btn');
                 if (i <= lastAnsweredIndex && answers[i]) {
                   input.value = answers[i];
                   input.disabled = true;
+                  confirmBtn.disabled = true;
                 }
                 container.appendChild(q);
                 setTimeout(() => q.classList.add('show'), 50 * (i + 1));
@@ -1198,17 +1224,19 @@
 
     window.addEventListener('beforeunload', (e) => {
       if (!isLocalStorageAvailable()) return;
-      saveProgress();
-      const checkboxStates = loadCheckboxStates();
-      const checkboxes = document.querySelectorAll('#scheduleCard input[type="checkbox"]');
-      checkboxes.forEach((checkbox, index) => {
-        checkboxStates[`checkbox_${index}`] = checkbox.checked;
-      });
-      saveCheckboxStates(checkboxStates);
-      console.log('State saved before unload');
-      e.preventDefault();
-      e.returnValue = 'نتأسف، خروجك من الموقع يؤدي إلى محو بياناتك وستضطر للبدء من جديد.';
-      return e.returnValue;
+      if (answers.length > 0 || Object.keys(loadCheckboxStates()).length > 0) {
+        saveProgress();
+        const checkboxStates = loadCheckboxStates();
+        const checkboxes = document.querySelectorAll('#scheduleCard input[type="checkbox"]');
+        checkboxes.forEach((checkbox, index) => {
+          checkboxStates[`checkbox_${index}`] = checkbox.checked;
+        });
+        saveCheckboxStates(checkboxStates);
+        console.log('State saved before unload');
+        e.preventDefault();
+        e.returnValue = 'نأسف، خروجك من الموقع يؤدي إلى محو بياناتك وستضطر للبدء من جديد.';
+        return e.returnValue;
+      }
     });
 
     window.addEventListener('pagehide', () => {
